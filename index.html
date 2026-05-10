@@ -458,7 +458,7 @@ input,select,textarea{font-family:inherit}
             <button class="btn btn-accent btn-sm" onclick="MD.backfillInvoices()">Fix Now</button>
           </div>
           <div class="setting-row">
-            <div><div class="setting-label">Export All Data</div><div class="setting-sub">Download a JSON backup of everything</div></div>
+            <div><div class="setting-label">Export All Data</div><div class="setting-sub" id="backup-sub">Download a JSON backup of everything</div></div>
             <button class="btn btn-outline btn-sm" onclick="DB.export()">Export</button>
           </div>
           <div class="setting-row">
@@ -698,8 +698,9 @@ const DB = {
     for (const s of DB.STORES) data[s] = await DB.getAll(s);
     const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
     const url  = URL.createObjectURL(blob);
-    const a    = Object.assign(document.createElement('a'),{href:url,download:`pawscheduler-${U.today()}.json`});
+    const a    = Object.assign(document.createElement('a'),{href:url,download:'pawscheduler-backup.json'});
     a.click(); URL.revokeObjectURL(url);
+    await DB.setSetting('lastBackup', Date.now());
     App.toast('✅ Backup downloaded');
   },
 
@@ -912,6 +913,16 @@ const PD = {
     const tmrwBk=bks.filter(b=>b.date===tmrwStr&&b.status==='confirmed');
     if(tmrwBk.length) alerts.push({ico:'📅',urgency:-1,t:`<strong>${tmrwBk.length} booking${tmrwBk.length>1?'s':''} tomorrow</strong> — ${tmrwBk.map(b=>b.dogName).join(', ')}`});
 
+    // Backup reminder — nudge if never backed up or >7 days ago
+    const lastBackup = await DB.getSetting('lastBackup', null);
+    const daysSince  = lastBackup ? (Date.now()-lastBackup)/(1000*60*60*24) : 999;
+    if(daysSince >= 7) {
+      const msg = lastBackup
+        ? `Last backup was <strong>${Math.floor(daysSince)} days ago</strong> — tap to export now`
+        : `<strong>No backup yet</strong> — export your data so nothing gets lost`;
+      alerts.push({ico:'💾',urgency:-2,t:msg,action:`onclick="App.nav('settings',document.getElementById('sb-settings'))"`});
+    }
+
     alerts.sort((a,b)=>b.urgency-a.urgency);
     ae.innerHTML=alerts.length
       ?alerts.map(a=>`<div class="list-row" style="${a.action?'cursor:pointer':'cursor:default'}" ${a.action||''}><span style="font-size:1rem;flex-shrink:0">${a.ico}</span><span style="font-size:.8rem;color:var(--ink2);line-height:1.45">${a.t}</span></div>`).join('')
@@ -1088,6 +1099,9 @@ const PS = {
     document.getElementById('set-email').value=p.email||'';
     document.getElementById('set-cap').value=p.capacity||6;
     document.getElementById('set-pfx').value=p.prefix||'INV';
+    const lb=await DB.getSetting('lastBackup',null);
+    const lbEl=document.getElementById('backup-sub');
+    if(lbEl) lbEl.textContent = lb ? 'Last backup: '+new Date(lb).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'Never backed up — tap Export to save your data';
     const sp=await PS.getSvcPrices();
     document.getElementById('sp-day_care').value=sp.day_care||35;
     document.getElementById('sp-walk').value=sp.walk||15;
