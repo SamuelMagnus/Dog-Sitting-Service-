@@ -8,8 +8,10 @@
 <meta name="apple-mobile-web-app-title" content="PawScheduler">
 <meta name="theme-color" content="#ffffff">
 <title>PawScheduler</title>
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="./manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- PWA icons -->
+<link rel="apple-touch-icon" href="./icon-192.png">
 <style>
 :root{
   --accent:#00C896;--accent-dim:rgba(0,200,150,0.12);--accent-dk:#00A87E;
@@ -762,8 +764,7 @@ const App = {
     const p = await DB.getSetting('profile',{});
     Object.assign(App.profile, p);
     App._updateProfileUI();
-    // Register SW
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    // SW registered separately in PWA SETUP block
     // Install prompt
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault(); App._installPrompt = e;
@@ -1780,6 +1781,11 @@ async function refresh() {
     // Just update KPIs without re-rendering the whole page
     PD.load().catch(()=>{});
   }
+}
+
+// ═══════════════ PWA SETUP ═══════════════
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
 }
 
 // ═══════════════ BOOT ═══════════════
