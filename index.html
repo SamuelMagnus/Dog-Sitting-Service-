@@ -2304,9 +2304,12 @@ const MID = {
     <div style="margin:28px 40px;border:1px solid #E5E7EB;border-radius:16px;overflow:hidden;display:flex;min-height:180px">
       <div style="flex:1;padding:24px 28px;border-right:1px solid #E5E7EB">
         <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#059669;margin-bottom:16px">Bill To</div>
-        <div style="font-size:20px;font-weight:800;color:#111827;margin-bottom:10px;letter-spacing:-.3px">${inv.clientName}</div>
-        <div style="font-size:14px;font-weight:500;color:#374151;margin-bottom:8px">${inv.dogEmoji||'🐶'} ${inv.dogName||''}</div>
-        <div style="font-size:14px;font-weight:600;color:#374151">${inv.service}</div>
+        <div style="font-size:11px;color:#9CA3AF;margin-bottom:4px">Client</div>
+        <div style="font-size:20px;font-weight:800;color:#111827;margin-bottom:12px;letter-spacing:-.3px">${inv.clientName}</div>
+        <div style="font-size:11px;color:#9CA3AF;margin-bottom:4px">Pet</div>
+        <div style="font-size:15px;font-weight:700;color:#111827;margin-bottom:12px">${inv.dogEmoji||'🐶'} ${inv.dogName||'—'}</div>
+        <div style="font-size:11px;color:#9CA3AF;margin-bottom:4px">Service</div>
+        <div style="font-size:15px;font-weight:700;color:#111827">${inv.service}</div>
         ${lineItemsHtml}
       </div>
       <div style="flex:1;padding:24px 28px">
@@ -2432,10 +2435,13 @@ const MID = {
       '<div style="margin:0 24px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:14px;overflow:hidden">' +
         '<div style="display:flex;min-height:160px">' +
           '<div style="flex:1;padding:22px 24px;border-right:1px solid #E5E7EB;box-sizing:border-box">' +
-            '<div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#059669;margin-bottom:16px">Bill To</div>' +
-            '<div style="font-size:1.25rem;font-weight:800;color:#111827;margin-bottom:10px;letter-spacing:-.3px">' + inv.clientName + '</div>' +
-            '<div style="font-size:.9rem;font-weight:500;color:#374151;margin-bottom:8px;display:flex;align-items:center;gap:5px">' + (inv.dogEmoji||'🐶') + ' <span style="font-weight:600">' + inv.dogName + '</span></div>' +
-            '<div style="font-size:.9rem;font-weight:600;color:#374151">' + inv.service + '</div>' +
+            '<div style="font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#059669;margin-bottom:14px">Bill To</div>' +
+            '<div style="font-size:.65rem;color:#9CA3AF;margin-bottom:3px">Client</div>' +
+            '<div style="font-size:1.1rem;font-weight:800;color:#111827;margin-bottom:10px;letter-spacing:-.3px">' + inv.clientName + '</div>' +
+            '<div style="font-size:.65rem;color:#9CA3AF;margin-bottom:3px">Pet</div>' +
+            '<div style="font-size:.88rem;font-weight:700;color:#111827;margin-bottom:10px">' + (inv.dogEmoji||'🐶') + ' ' + inv.dogName + '</div>' +
+            '<div style="font-size:.65rem;color:#9CA3AF;margin-bottom:3px">Service</div>' +
+            '<div style="font-size:.88rem;font-weight:700;color:#111827">' + inv.service + '</div>' +
             lineHtml +
           '</div>' +
           '<div style="flex:1;padding:22px 24px;box-sizing:border-box">' +
