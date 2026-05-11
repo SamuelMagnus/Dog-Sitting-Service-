@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#ffffff">
 <title>PawScheduler</title>
 <link rel="manifest" href="./manifest.json">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <!-- PWA icons -->
@@ -162,7 +163,7 @@ input,select,textarea{font-family:inherit}
 .inv-dog-lbl{font-size:.7rem;color:var(--ink3)}
 .inv-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
 .inv-due{font-size:.68rem;color:var(--ink3)}
-.inv-due.od{color:var(--red);font-weight:700}
+.inv-due.od{color:var(--red);font-weight:700}.inv-due.pd{color:var(--accent-dk);font-weight:600}
 .inv-amount{font-weight:800;font-size:.92rem}
 .toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .tabs{display:flex;background:var(--bg);border-radius:var(--rsm);padding:3px;gap:2px}
@@ -593,6 +594,24 @@ input,select,textarea{font-family:inherit}
       </div>
     </div>
 
+    <!-- RECEIPT IMAGE MODAL -->
+    <div class="modal-ov" id="receiptImgModal">
+      <div class="modal" style="max-height:88vh">
+        <div class="modal-head">
+          <span class="modal-title">📸 Receipt Image</span>
+          <button class="modal-close" onclick="mClose('receiptImgModal')">✕</button>
+        </div>
+        <div style="padding:16px">
+          <p style="font-size:.82rem;color:var(--ink2);margin-bottom:12px;line-height:1.5">Your receipt image is ready. <strong>Save it</strong> to your camera roll, then attach it when your email app opens.</p>
+          <img id="receiptImgPreview" style="width:100%;border-radius:var(--r);box-shadow:var(--sh-md);margin-bottom:14px" alt="Receipt">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <a id="receiptImgDownload" download="receipt.png" class="btn btn-accent ripple-host" style="text-decoration:none;justify-content:center">💾 Save Image</a>
+            <button class="btn btn-primary ripple-host" id="receiptEmailBtn">✉️ Open Email App</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 </div>
@@ -691,7 +710,7 @@ input,select,textarea{font-family:inherit}
     <div class="modal-body">
       <div class="fr"><div class="fg"><label class="fl">Client Name</label><input class="fi" id="inv-cl" placeholder="Sarah Johnson"></div><div class="fg"><label class="fl">Dog Name</label><input class="fi" id="inv-dog" placeholder="Biscuit"></div></div>
       <div class="fr"><div class="fg"><label class="fl">Service</label><select class="fs" id="inv-svc"><option>☀️ Day Care</option><option>🦮 Walk</option><option>🌙 Overnight</option><option>✂️ Grooming</option><option>📦 Multiple Services</option></select></div><div class="fg"><label class="fl">Amount (£)</label><input class="fi" id="inv-amt" type="number" min="0" step="0.5" placeholder="35.00"></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Invoice Date</label><input class="fi" id="inv-date" type="date"></div><div class="fg"><label class="fl">Due Date</label><input class="fi" id="inv-due" type="date"></div></div>
+      <div class="fr"><div class="fg"><label class="fl">Invoice Date</label><input class="fi" id="inv-date" type="date"></div><div class="fg"><label class="fl">Due Date <span style="font-size:.7rem;font-weight:400;color:var(--ink3)">(optional)</span></label><input class="fi" id="inv-due" type="date"></div></div>
       <div class="fg"><label class="fl">Notes</label><input class="fi" id="inv-notes" placeholder="Optional note"></div>
     </div>
     <div class="modal-foot"><button class="btn btn-outline" onclick="MI.close()">Cancel</button><button class="btn btn-primary ripple-host" onclick="MI.save()">Create Invoice</button></div>
@@ -1170,7 +1189,7 @@ const PI = {
     list.innerHTML=data.map(i=>`<div class="inv-card" onclick="MID.open('${i.id}')">
       <div class="inv-num">${i.invoiceNumber||i.id.slice(0,6)}</div>
       <div class="inv-ci"><div class="inv-cname">${i.clientName}</div><div class="inv-dog-lbl">${i.dogEmoji||'🐶'} ${i.dogName||''} · ${i.service}</div></div>
-      <div class="inv-right">${U.pill(i.status)}<span class="inv-due ${i.status==='overdue'?'od':''}">${U.fmtShort(i.dueDate)}</span></div>
+      <div class="inv-right">${U.pill(i.status)}<span class="inv-due ${i.status==='overdue'?'od':i.status==='paid'?'pd':''}">${i.status==='paid'&&i.paidAt?'Paid '+U.fmtShort(new Date(i.paidAt).toLocaleDateString('en-CA')):U.fmtShort(i.dueDate)}</span></div>
       <div class="inv-amount">${U.fmt(i.amount)}</div>
     </div>`).join('');
   },
@@ -1546,7 +1565,7 @@ const MID = {
         <div class="detail-row"><span class="detail-k">Dog</span><span class="detail-v">${inv.dogEmoji||'🐶'} ${inv.dogName||'—'}</span></div>
         <div class="detail-row"><span class="detail-k">Service</span><span class="detail-v">${inv.service}</span></div>
         <div class="detail-row"><span class="detail-k">Issued</span><span class="detail-v">${U.fmtShort(inv.issueDate)}</span></div>
-        <div class="detail-row"><span class="detail-k">Due</span><span class="detail-v" style="color:${inv.status==='overdue'?'var(--red)':'inherit'}">${U.fmtShort(inv.dueDate)}</span></div>
+        <div class="detail-row"><span class="detail-k">${inv.status==='paid'?'Date Paid':'Due Date'}</span><span class="detail-v" style="color:${inv.status==='overdue'?'var(--red)':inv.status==='paid'?'var(--accent-dk)':'inherit'}">${inv.status==='paid'&&inv.paidAt?U.fmtShort(new Date(inv.paidAt).toLocaleDateString('en-CA')):U.fmtShort(inv.dueDate)||'—'}</span></div>
         ${inv.notes?`<div style="margin-top:10px;font-size:.8rem;color:var(--ink3)">${inv.notes}</div>`:''}
         <div class="inv-total-box"><span style="font-weight:700;font-size:.88rem">Total Due</span><span style="font-size:1.4rem;font-weight:800;letter-spacing:-.4px">${U.fmt(inv.amount)}</span></div>
       </div>
@@ -1573,7 +1592,7 @@ const MID = {
     const statusLabel = isPaid ? '✓ Paid' : inv.status==='overdue' ? 'Overdue' : 'Pending';
     const w = window.open('','_blank','width=780,height=1000');
     w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${inv.invoiceNumber} — ${biz}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       *{box-sizing:border-box;margin:0;padding:0}
@@ -1651,7 +1670,7 @@ const MID = {
         </div>
         <div class="date-row">
           <div class="date-ico">📅</div>
-          <div><div class="date-label">Due Date</div><div class="date-val">${U.fmtShort(inv.dueDate)}</div></div>
+          <div><div class="date-label">${isPaid?'Date Paid':'Due Date'}</div><div class="date-val">${isPaid&&inv.paidAt?U.fmtShort(new Date(inv.paidAt).toLocaleDateString('en-CA')):U.fmtShort(inv.dueDate)||'—'}</div></div>
         </div>
         ${inv.notes?`<div class="date-row"><div class="date-ico">📝</div><div><div class="date-label">Notes</div><div class="date-val">${inv.notes}</div></div></div>`:''}
       </div>
@@ -1677,33 +1696,90 @@ const MID = {
   },
 
   async email(id) {
-    const inv = await DB.get('invoices', id); if(!inv)return;
-    // Try to find client email
+    const inv = await DB.get('invoices', id); if(!inv) return;
     const clients = await DB.getAll('clients');
-    const client = clients.find(c => (c.firstName+' '+c.lastName)===inv.clientName || c.id===inv.clientId);
+    const client  = clients.find(c => (c.firstName+' '+c.lastName)===inv.clientName || c.id===inv.clientId);
     const toEmail = client?.email || '';
-    const biz = App.profile.biz || 'Homeward Hounds Adventures';
-    const subject = encodeURIComponent(`Receipt from ${biz} — ${inv.invoiceNumber}`);
-    const body = encodeURIComponent(
-`Hi ${inv.clientName},
+    const biz     = App.profile.biz || 'Homeward Hounds Adventures';
+    const phone   = App.profile.phone || '';
+    const email   = App.profile.email || '';
+    const isPaid  = inv.status === 'paid';
 
-Please find your receipt details below.
+    App.toast('📸 Generating receipt image…');
 
-Invoice: ${inv.invoiceNumber}
-Dog: ${inv.dogName}
-Service: ${inv.service}
-Date: ${U.fmtShort(inv.issueDate)}
-Amount: ${U.fmt(inv.amount)}
-Status: ${inv.status.charAt(0).toUpperCase()+inv.status.slice(1)}
+    // Build an off-screen receipt div to capture
+    const wrap = document.createElement('div');
+    wrap.id = 'receiptCapture';
+    wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:375px;background:#fff;font-family:Plus Jakarta Sans,sans-serif;z-index:-1';
+    const paidDate = isPaid && inv.paidAt ? U.fmtShort(new Date(inv.paidAt).toLocaleDateString('en-CA')) : '';
+    const paidBadge = isPaid ? '<span style="background:rgba(255,255,255,.25);border-radius:20px;padding:4px 12px;font-size:.72rem;font-weight:700">&#10003; Paid</span>' : '';
+    const dateLabel = isPaid ? 'Date Paid' : 'Due Date';
+    const dateVal   = isPaid ? paidDate : (U.fmtShort(inv.dueDate)||'&#8212;');
+    const statusMsg = isPaid ? 'Payment has been received.' : (inv.status==='overdue' ? 'Payment is overdue.' : 'Payment pending');
+    const phoneRow  = phone ? '<div style="font-size:.72rem;color:#9a9a9a;margin-top:4px">&#128222; '+phone+'</div>' : '';
 
-Thank you for choosing ${biz}!
+    wrap.innerHTML =
+      '<div style="background:#00C896;padding:22px 20px 18px;color:#fff">' +
+        '<div style="font-size:1.4rem;margin-bottom:2px">&#128062;</div>' +
+        '<div style="font-size:1.1rem;font-weight:800;letter-spacing:-.3px">' + biz + '</div>' +
+        '<div style="font-size:.75rem;opacity:.85;margin-top:2px">' + email + '</div>' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px">' +
+          '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.8">Invoice</div>' +
+          paidBadge +
+        '</div>' +
+        '<div style="font-size:2rem;font-weight:900;letter-spacing:-1px;margin-top:2px">' + inv.invoiceNumber + '</div>' +
+      '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px;background:#f8f8f8">' +
+        '<div style="background:#fff;border-radius:10px;padding:12px">' +
+          '<div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9a9a9a;margin-bottom:8px">Bill To</div>' +
+          '<div style="font-size:.8rem;font-weight:700;color:#0d0d0d;margin-bottom:6px">&#128100; ' + inv.clientName + '</div>' +
+          '<div style="font-size:.8rem;font-weight:700;color:#0d0d0d;margin-bottom:6px">' + (inv.dogEmoji||'&#128054;') + ' ' + inv.dogName + '</div>' +
+          '<div style="font-size:.8rem;font-weight:700;color:#0d0d0d">&#128054; ' + inv.service + '</div>' +
+        '</div>' +
+        '<div style="background:#fff;border-radius:10px;padding:12px">' +
+          '<div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9a9a9a;margin-bottom:8px">Dates</div>' +
+          '<div style="font-size:.7rem;color:#9a9a9a;margin-bottom:2px">Invoice Date</div>' +
+          '<div style="font-size:.82rem;font-weight:700;margin-bottom:8px">&#128197; ' + U.fmtShort(inv.issueDate) + '</div>' +
+          '<div style="font-size:.7rem;color:#9a9a9a;margin-bottom:2px">' + dateLabel + '</div>' +
+          '<div style="font-size:.82rem;font-weight:700">&#128197; ' + dateVal + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="margin:0 16px;border:2px solid #00C896;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">' +
+        '<div>' +
+          '<div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#00A87E">Total Due</div>' +
+          '<div style="font-size:.75rem;color:#4a4a4a;margin-top:2px">' + statusMsg + '</div>' +
+        '</div>' +
+        '<div style="font-size:1.8rem;font-weight:900;color:#00A87E;letter-spacing:-1px">' + U.fmt(inv.amount) + '</div>' +
+      '</div>' +
+      '<div style="text-align:center;padding:16px 20px 8px">' +
+        '<div style="font-size:.8rem;font-style:italic;color:#4a4a4a">Thank you for choosing ' + biz + '!</div>' +
+        phoneRow +
+      '</div>';
+    document.body.appendChild(wrap);
 
-${App.profile.email ? 'Contact: '+App.profile.email : ''}
-${App.profile.phone ? 'Phone: '+App.profile.phone : ''}`.trim()
-    );
-    const mailto = `mailto:${toEmail}?subject=${subject}&body=${body}`;
-    window.open(mailto, '_self');
-    App.toast(toEmail ? `✉️ Opening email to ${toEmail}` : '✉️ Opening email (no address saved for client)');
+    try {
+      const canvas = await html2canvas(wrap, {scale:2, useCORS:true, backgroundColor:'#fff', logging:false});
+      const dataUrl = canvas.toDataURL('image/png');
+
+      // Show image modal
+      document.getElementById('receiptImgPreview').src = dataUrl;
+      document.getElementById('receiptImgDownload').href = dataUrl;
+      document.getElementById('receiptImgDownload').download = `${inv.invoiceNumber}-receipt.png`;
+
+      // Wire email button
+      const subject = encodeURIComponent(`Receipt from ${biz} — ${inv.invoiceNumber}`);
+      const body    = encodeURIComponent('Hi '+inv.clientName+',\n\nPlease find your receipt image attached.\n\n'+inv.invoiceNumber+' · '+inv.service+' · '+U.fmt(inv.amount)+'\n\nThank you for choosing '+biz+'!');
+      document.getElementById('receiptEmailBtn').onclick = () => {
+        window.open(`mailto:${toEmail}?subject=${subject}&body=${body}`, '_self');
+      };
+
+      mOpen('receiptImgModal');
+    } catch(err) {
+      App.toast('❌ Could not generate image');
+      console.error(err);
+    } finally {
+      document.body.removeChild(wrap);
+    }
   }
 };
 
