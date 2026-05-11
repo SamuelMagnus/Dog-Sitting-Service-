@@ -854,14 +854,14 @@ input,select,textarea{font-family:inherit}
       <div class="modal" style="max-height:88vh">
         <div class="modal-head">
           <span class="modal-title">📸 Receipt Image</span>
-          <button class="modal-close" onclick="mClose('receiptImgModal')">✕</button>
+          <button class="modal-x" onclick="mClose('receiptImgModal')">✕</button>
         </div>
-        <div style="padding:16px">
-          <p style="font-size:.82rem;color:var(--ink2);margin-bottom:12px;line-height:1.5">Your receipt image is ready. <strong>Save it</strong> to your camera roll, then attach it when your email app opens.</p>
-          <img id="receiptImgPreview" style="width:100%;border-radius:var(--r);box-shadow:var(--sh-md);margin-bottom:14px" alt="Receipt">
-          <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="padding:14px 16px">
+          <p style="font-size:.78rem;color:var(--ink2);margin-bottom:12px;line-height:1.5">Receipt ready. <strong>Save it</strong> to your camera roll, then attach when your email app opens.</p>
+          <img id="receiptImgPreview" style="width:100%;border-radius:var(--r);box-shadow:0 4px 20px rgba(0,0,0,.15);margin-bottom:12px;display:block" alt="Receipt">
+          <div style="display:flex;flex-direction:column;gap:8px">
             <a id="receiptImgDownload" download="receipt.png" class="btn btn-accent ripple-host" style="text-decoration:none;justify-content:center">💾 Save Image</a>
-            <button class="btn btn-primary ripple-host" id="receiptEmailBtn">✉️ Open Email App</button>
+            <button class="btn btn-outline ripple-host" id="receiptEmailBtn">✉️ Open Email App</button>
           </div>
         </div>
       </div>
@@ -1998,16 +1998,16 @@ const MID = {
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px;background:#f8f8f8">' +
         '<div style="background:#fff;border-radius:10px;padding:12px">' +
           '<div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9a9a9a;margin-bottom:8px">Bill To</div>' +
-          '<div style="font-size:.8rem;font-weight:700;color:#0d0d0d;margin-bottom:6px">&#128100; ' + inv.clientName + '</div>' +
-          '<div style="font-size:.8rem;font-weight:700;color:#0d0d0d;margin-bottom:6px">' + (inv.dogEmoji||'&#128054;') + ' ' + inv.dogName + '</div>' +
-          '<div style="font-size:.8rem;font-weight:700;color:#0d0d0d">&#128054; ' + inv.service + '</div>' +
+          '<div style="font-size:.84rem;font-weight:700;color:#0d0d0d;margin-bottom:6px">' + inv.clientName + '</div>' +
+          '<div style="font-size:.84rem;font-weight:700;color:#0d0d0d;margin-bottom:6px">' + (inv.dogEmoji||'🐶') + ' ' + inv.dogName + '</div>' +
+          '<div style="font-size:.84rem;font-weight:700;color:#0d0d0d">' + inv.service + '</div>' +
         '</div>' +
         '<div style="background:#fff;border-radius:10px;padding:12px">' +
           '<div style="font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#9a9a9a;margin-bottom:8px">Dates</div>' +
-          '<div style="font-size:.7rem;color:#9a9a9a;margin-bottom:2px">Invoice Date</div>' +
-          '<div style="font-size:.82rem;font-weight:700;margin-bottom:8px">&#128197; ' + U.fmtShort(inv.issueDate) + '</div>' +
-          '<div style="font-size:.7rem;color:#9a9a9a;margin-bottom:2px">' + dateLabel + '</div>' +
-          '<div style="font-size:.82rem;font-weight:700">&#128197; ' + dateVal + '</div>' +
+          '<div style="font-size:.65rem;color:#9a9a9a;margin-bottom:2px">Invoice Date</div>' +
+          '<div style="font-size:.84rem;font-weight:700;color:#0d0d0d;margin-bottom:8px">' + U.fmtShort(inv.issueDate) + '</div>' +
+          '<div style="font-size:.65rem;color:#9a9a9a;margin-bottom:2px">' + dateLabel + '</div>' +
+          '<div style="font-size:.84rem;font-weight:700;color:' + (isPaid?'#00A87E':'#0d0d0d') + '">' + dateVal + '</div>' +
         '</div>' +
       '</div>' +
       '<div style="margin:0 16px;border:2px solid #00C896;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">' +
@@ -2017,7 +2017,7 @@ const MID = {
         '</div>' +
         '<div style="font-size:1.8rem;font-weight:900;color:#00A87E;letter-spacing:-1px">' + U.fmt(inv.amount) + '</div>' +
       '</div>' +
-      '<div style="text-align:center;padding:16px 20px 8px">' +
+      '<div style="text-align:center;padding:16px 20px 16px;background:#fff">' +
         '<div style="font-size:.8rem;font-style:italic;color:#4a4a4a">Thank you for choosing ' + biz + '!</div>' +
         phoneRow +
       '</div>';
