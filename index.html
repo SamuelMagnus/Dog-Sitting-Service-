@@ -2097,18 +2097,13 @@ const MID = {
 
   async print(id) {
     const inv = await DB.get('invoices', id); if(!inv)return;
-    const biz   = App.profile.biz   || 'Homeward Hounds Adventures';
-    const email  = App.profile.email || 'kelprice24@gmail.com';
+    const biz    = App.profile.biz   || 'Homeward Hounds Adventures';
+    const email  = App.profile.email || '';
     const phone  = App.profile.phone || '';
     const isPaid = inv.status === 'paid';
     const w = window.open('','_blank','width=800,height=1100');
     if(!w){App.toast('❌ Allow pop-ups to print'); return;}
     const paidDateStr = isPaid && inv.paidAt ? U.fmtShort(new Date(inv.paidAt).toLocaleDateString('en-CA')) : '';
-    const statusPill = isPaid
-      ? '<span class="status-pill paid">&#10003; Paid</span>'
-      : inv.status==='overdue'
-        ? '<span class="status-pill overdue">Overdue</span>'
-        : '<span class="status-pill pending">Pending</span>';
     const lineItemsHtml = inv.lineItems && inv.lineItems.length > 1
       ? '<div class="line-items">' +
           inv.lineItems.map(l => '<div class="line-item"><span>' + U.fmtShort(l.date) + ' &mdash; ' + l.service + '</span><span>&pound;' + l.amount.toFixed(2) + '</span></div>').join('') +
@@ -2116,6 +2111,15 @@ const MID = {
         '</div>'
       : '';
     const totalSub = isPaid ? 'Payment has been received.' : inv.status==='overdue' ? 'Payment is overdue.' : 'Awaiting payment';
+    const statusPillHtml = isPaid
+      ? '<span style="border:2px solid #059669;border-radius:100px;padding:6px 18px;font-size:12px;font-weight:700;color:#059669;background:#fff;display:inline-flex;align-items:center;gap:8px"><span style="width:18px;height:18px;border-radius:50%;background:#059669;display:inline-flex;align-items:center;justify-content:center"><svg width=\"10\" height=\"10\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"white\" stroke-width=\"3\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"20,6 9,17 4,12\"/></svg></span>Paid</span>'
+      : inv.status==='overdue'
+        ? '<span style="border:2px solid #DC2626;border-radius:100px;padding:6px 18px;font-size:12px;font-weight:700;color:#DC2626;background:#fff">Overdue</span>'
+        : '<span style="border:2px solid #D97706;border-radius:100px;padding:6px 18px;font-size:12px;font-weight:700;color:#D97706;background:#fff">Pending</span>';
+    const footerPhone = phone
+      ? '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 8px;border-right:1px solid #E5E7EB"><div style="width:40px;height:40px;border-radius:50%;background:#F3F4F6;display:flex;align-items:center;justify-content:center"><svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#374151\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81 19.79 19.79 0 01.58 2.18 2 2 0 012.55 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z\"/></svg></div><div style="font-size:11px;color:#6B7280;text-align:center">' + phone + '</div></div>'
+      : '';
+    const cols = phone ? 3 : 2;
 
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
     <title>${inv.invoiceNumber} &mdash; ${biz}</title>
@@ -2123,127 +2127,93 @@ const MID = {
     <style>
       *{box-sizing:border-box;margin:0;padding:0}
       body{font-family:'Inter',system-ui,sans-serif;background:#fff;color:#111827;font-size:13px;max-width:720px;margin:0 auto;-webkit-font-smoothing:antialiased}
-      /* ── HEADER ── */
-      .header{display:grid;grid-template-columns:55fr 45fr;min-height:200px;overflow:hidden}
-        '<svg style="position:absolute;top:0;left:0;width:100%;height:100%" viewBox="0 0 600 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">' +
-          '<path d="M0,0 L340,0 Q290,110 340,220 L0,220 Z" fill="#132e21"/>' +
-        '</svg>' +
-      .header-left::after{content:'';position:absolute;top:-30px;right:-60px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.04)}
-      .paw-ico{font-size:28px;margin-bottom:12px;display:block}
-      .biz-name{font-size:22px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:10px;letter-spacing:-.3px}
-      .biz-accent{display:block;width:32px;height:3px;background:#00C896;border-radius:2px;margin-bottom:10px}
-      .biz-email{font-size:11.5px;color:rgba(255,255,255,.65)}
-      .header-right{padding:36px 40px;display:flex;flex-direction:column;align-items:flex-end;justify-content:center}
-      .inv-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#9CA3AF;margin-bottom:6px}
-      .inv-num{font-size:42px;font-weight:900;letter-spacing:-2px;color:#111827;margin-bottom:12px}
-      .status-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:100px;font-size:12px;font-weight:700;border:2px solid}
-      .status-pill.paid{background:#f0fdf4;color:#166534;border-color:#166534}
-      .status-pill.overdue{background:#fef2f2;color:#991b1b;border-color:#991b1b}
-      .status-pill.pending{background:#fffbeb;color:#92400e;border-color:#d97706}
-      /* ── BODY ── */
-      .body{padding:32px 40px}
-      .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;border:1px solid #E5E7EB;border-radius:16px;overflow:hidden}
-      .info-col{padding:24px}
-      .info-col:first-child{border-right:1px solid #E5E7EB}
-      .col-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#00A87E;margin-bottom:16px}
-      .info-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:14px}
-      .info-row:last-child{margin-bottom:0}
-      .info-row-label{font-size:11px;color:#9CA3AF;margin-bottom:2px}
-      .info-row-val{font-size:14px;font-weight:700;color:#111827}
-      .date-item{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #F3F4F6}
-      .date-item:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
-      .date-label{font-size:11px;color:#9CA3AF;margin-bottom:4px}
-      .date-val{font-size:14px;font-weight:700;color:#111827}
-      .date-val.green{color:#059669}
-      /* ── LINE ITEMS ── */
-      .line-items{margin-top:12px;padding-top:12px;border-top:1px solid #E5E7EB}
-      .line-item{display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;color:#6B7280}
-      .line-item.discount{color:#059669;font-weight:700;border-top:1px dashed #E5E7EB;margin-top:4px;padding-top:8px}
-      /* ── TOTAL BOX ── */
-      .total-box{background:linear-gradient(135deg,#1a3a2e,#2d6a4f);border-radius:16px;padding:28px 32px;display:flex;align-items:center;gap:28px;margin-bottom:32px;position:relative;overflow:hidden}
-      .total-box::after{content:'🐾';position:absolute;right:28px;bottom:-10px;font-size:72px;opacity:.08}
-      .total-left{flex:1}
-      .total-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.7);margin-bottom:6px}
-      .total-sub{font-size:12px;color:rgba(255,255,255,.55)}
-      .total-divider{width:1px;height:52px;background:rgba(255,255,255,.2)}
-      .total-amount{font-size:48px;font-weight:900;color:#fff;letter-spacing:-2px}
-      /* ── FOOTER ── */
-      .footer-divider{display:flex;align-items:center;gap:0;margin-bottom:20px}
-      .footer-divider-line{flex:1;height:1px;background:#E5E7EB}
-      .footer-heart{width:40px;height:40px;border-radius:50%;background:#1a3a2e;display:flex;align-items:center;justify-content:center;font-size:16px;color:white;flex-shrink:0}
-      .thank-you{text-align:center;margin-bottom:28px}
-      .thank-you p{font-size:13px;color:#6B7280;margin-bottom:4px}
-      .thank-you strong{font-size:15px;font-weight:800;color:#111827}
-      .footer-bar{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #E5E7EB;border-radius:12px;overflow:hidden}
-      .footer-item{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 8px;border-right:1px solid #E5E7EB}
-      .footer-item:last-child{border-right:none}
-      .footer-ico-wrap{width:36px;height:36px;border-radius:50%;background:#f0fdf4;display:flex;align-items:center;justify-content:center}
-      .footer-ico-svg{width:16px;height:16px;fill:none;stroke:#166534;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-      .footer-txt{font-size:11px;color:#6B7280;text-align:center;line-height:1.4}
       @media print{@page{margin:0}body{max-width:100%}}
     </style></head><body>
-    <div class="header">
-      <div class="header-left">
-        <span class="paw-ico">🐾</span>
-        <div class="biz-name">${biz}</div>
-        <span class="biz-accent"></span>
-        <div class="biz-email">${email}</div>
+
+    <!-- HEADER -->
+    <div style="position:relative;height:240px;background:#fff;overflow:hidden">
+      <svg style="position:absolute;top:0;left:0;width:100%;height:100%" viewBox="0 0 720 240" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,0 L372,0 C372,120 312,120 372,240 L0,240 Z" fill="#132e21"/>
+      </svg>
+      <div style="position:absolute;top:0;left:0;width:48%;height:100%;padding:36px 36px;display:flex;flex-direction:column;justify-content:center">
+        <div style="font-size:32px;margin-bottom:14px">🐾</div>
+        <div style="font-size:18px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:12px;letter-spacing:-.3px">${biz}</div>
+        <div style="width:30px;height:3px;background:#00C896;border-radius:2px;margin-bottom:12px"></div>
+        <div style="font-size:11px;color:rgba(255,255,255,.55)">${email}</div>
       </div>
-      <div class="header-right">
-        <div class="inv-label">Invoice</div>
-        <div class="inv-num">${inv.invoiceNumber}</div>
-        ${statusPill}
-      </div>
-    </div>
-    <div class="body">
-      <div class="info-grid">
-        <div class="info-col">
-          <div class="col-label">Bill To</div>
-          <div class="info-row">
-            <div>
-              <div class="info-row-val" style="font-size:18px;margin-bottom:10px">${inv.clientName}</div>
-              <div class="info-row-val" style="font-weight:600;margin-bottom:6px">${inv.dogEmoji||'🐶'} ${inv.dogName||''}</div>
-              <div class="info-row-val" style="font-weight:600">${inv.service}</div>
-              ${lineItemsHtml}
-            </div>
-          </div>
-        </div>
-        <div class="info-col">
-          <div class="col-label">Invoice Dates</div>
-          <div class="date-item">
-            <div class="date-label">Service Date</div>
-            <div class="date-val">${U.fmtShort(inv.issueDate)}</div>
-          </div>
-          <div class="date-item">
-            <div class="date-label">${isPaid?'Date Paid':'Due Date'}</div>
-            <div class="date-val ${isPaid?'green':''}">${isPaid?paidDateStr:U.fmtShort(inv.dueDate)||'&mdash;'}</div>
-          </div>
-          ${inv.notes?`<div class="date-item"><div class="date-label">Notes</div><div class="date-val" style="font-size:12px;font-weight:500;color:#6B7280">${inv.notes}</div></div>`:''}
-        </div>
-      </div>
-      <div class="total-box">
-        <div class="total-left">
-          <div class="total-label">Total Due</div>
-          <div class="total-sub">${totalSub}</div>
-        </div>
-        <div class="total-divider"></div>
-        <div class="total-amount">${U.fmt(inv.amount)}</div>
-      </div>
-      <div class="footer-divider">
-        <div class="footer-divider-line"></div>
-        <div class="footer-heart">&#9829;</div>
-        <div class="footer-divider-line"></div>
-      </div>
-      <div class="thank-you">
-        <p>Thank you for choosing</p>
-        <strong>${biz}!</strong>
-      </div>
-      <div class="footer-bar">
-        ${phone?`<div class="footer-item"><div class="footer-ico-wrap"><svg class="footer-ico-svg" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div><div class="footer-txt">${phone}</div></div>`:'<div class="footer-item"><div class="footer-ico-wrap"><svg class="footer-ico-svg" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 8.81a19.79 19.79 0 01-3.07-8.63A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div><div class="footer-txt">Contact us</div></div>'}
-        <div class="footer-item"><div class="footer-ico-wrap"><svg class="footer-ico-svg" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><div class="footer-txt">${email}</div></div>
-        <div class="footer-item"><div class="footer-ico-wrap"><svg class="footer-ico-svg" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="footer-txt">Serving local areas</div></div>
+      <div style="position:absolute;top:0;right:0;width:52%;height:100%;display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding:36px 44px">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:3px;color:#9CA3AF;margin-bottom:8px">Invoice</div>
+        <div style="font-size:48px;font-weight:900;letter-spacing:-3px;color:#0d1117;line-height:1;margin-bottom:16px">${inv.invoiceNumber}</div>
+        ${statusPillHtml}
       </div>
     </div>
+
+    <!-- INFO GRID -->
+    <div style="margin:28px 40px;border:1px solid #E5E7EB;border-radius:16px;overflow:hidden;display:flex;min-height:180px">
+      <div style="flex:1;padding:24px 28px;border-right:1px solid #E5E7EB">
+        <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#059669;margin-bottom:16px">Bill To</div>
+        <div style="font-size:20px;font-weight:800;color:#111827;margin-bottom:10px;letter-spacing:-.3px">${inv.clientName}</div>
+        <div style="font-size:14px;font-weight:500;color:#374151;margin-bottom:8px">${inv.dogEmoji||'🐶'} ${inv.dogName||''}</div>
+        <div style="font-size:14px;font-weight:600;color:#374151">${inv.service}</div>
+        ${lineItemsHtml}
+      </div>
+      <div style="flex:1;padding:24px 28px">
+        <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:#059669;margin-bottom:16px">Invoice Dates</div>
+        <div style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid #F3F4F6">
+          <div style="font-size:11px;color:#9CA3AF;margin-bottom:5px">Service Date</div>
+          <div style="font-size:15px;font-weight:700;color:#111827;letter-spacing:-.2px">${U.fmtShort(inv.issueDate)}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#9CA3AF;margin-bottom:5px">${isPaid?'Date Paid':'Due Date'}</div>
+          <div style="font-size:15px;font-weight:700;color:${isPaid?'#059669':'#111827'};letter-spacing:-.2px">${isPaid?paidDateStr:U.fmtShort(inv.dueDate)||'&mdash;'}</div>
+        </div>
+        ${inv.notes?'<div style="margin-top:16px;padding-top:16px;border-top:1px solid #F3F4F6"><div style="font-size:11px;color:#9CA3AF;margin-bottom:5px">Notes</div><div style="font-size:13px;color:#374151">' + inv.notes + '</div></div>':''}
+      </div>
+    </div>
+
+    <!-- TOTAL BOX -->
+    <div style="margin:0 40px 28px;border-radius:16px;padding:28px 36px;display:flex;align-items:center;background:linear-gradient(90deg,#0d2218 0%,#1a4d30 50%,#00966a 100%);position:relative;overflow:hidden">
+      <div style="position:absolute;right:28px;bottom:-14px;font-size:100px;opacity:.1;line-height:1">🐾</div>
+      <div style="flex:1">
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,.6);margin-bottom:6px">Total Due</div>
+        <div style="font-size:13px;font-weight:400;color:rgba(255,255,255,.5)">${totalSub}</div>
+      </div>
+      <div style="width:1px;height:52px;background:rgba(255,255,255,.2);margin:0 36px;flex-shrink:0"></div>
+      <div style="font-size:52px;font-weight:900;color:#fff;letter-spacing:-3px;line-height:1">${U.fmt(inv.amount)}</div>
+    </div>
+
+    <!-- HEART DIVIDER -->
+    <div style="display:flex;align-items:center;padding:0 40px;margin-bottom:20px">
+      <div style="flex:1;height:1px;background:#E5E7EB"></div>
+      <div style="width:44px;height:44px;border-radius:50%;background:#132e21;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <div style="flex:1;height:1px;background:#E5E7EB"></div>
+    </div>
+
+    <!-- THANK YOU -->
+    <div style="text-align:center;margin-bottom:28px;padding:0 40px">
+      <div style="font-size:14px;color:#6B7280;margin-bottom:4px">Thank you for choosing</div>
+      <div style="font-size:16px;font-weight:800;color:#111827;letter-spacing:-.2px">${biz}!</div>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="margin:0 40px 40px;border:1px solid #E5E7EB;border-radius:14px;overflow:hidden;display:flex">
+      ${footerPhone}
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 8px;border-right:1px solid #E5E7EB">
+        <div style="width:40px;height:40px;border-radius:50%;background:#F3F4F6;display:flex;align-items:center;justify-content:center">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div style="font-size:11px;color:#6B7280;text-align:center">${email}</div>
+      </div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;padding:18px 8px">
+        <div style="width:40px;height:40px;border-radius:50%;background:#F3F4F6;display:flex;align-items:center;justify-content:center">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div style="font-size:11px;color:#6B7280;text-align:center">Serving local areas</div>
+      </div>
+    </div>
+
     <script>window.onload=()=>{window.print();}<\/script>
     </body></html>`;
     w.document.write(html);
