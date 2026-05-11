@@ -105,7 +105,7 @@ input,select,textarea{font-family:inherit}
 .bk-card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);display:flex;cursor:pointer;transition:all .15s}
 .bk-card:hover{box-shadow:var(--sh-md);transform:translateY(-1px)}
 .bk-stripe{width:4px;flex-shrink:0;border-radius:var(--r) 0 0 var(--r)}
-.bk-stripe.day_care{background:var(--accent)}.bk-stripe.walk{background:var(--blue)}.bk-stripe.overnight{background:var(--ink)}.bk-stripe.grooming{background:var(--purple)}
+.bk-stripe.day_care{background:var(--accent)}.bk-stripe.walk,.bk-stripe.walk_30,.bk-stripe.walk_60{background:var(--blue)}.bk-stripe.overnight{background:var(--ink)}.bk-stripe.grooming{background:var(--purple)}.bk-stripe.welfare_dog,.bk-stripe.welfare_cat,.bk-stripe.welfare_small{background:var(--amber)}
 .bk-inner{flex:1;padding:13px 14px;display:flex;align-items:center;gap:12px;min-width:0}
 .bk-emoji{font-size:1.4rem;flex-shrink:0}
 .bk-name{font-weight:700;font-size:.88rem}.bk-owner{font-size:.72rem;color:var(--ink3)}
@@ -345,6 +345,16 @@ input,select,textarea{font-family:inherit}
 .toggle-thumb { width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2) }
 .toggle-track.on .toggle-thumb { transform:translateX(18px) }
 
+/* ── CLIENT CHECKLIST EDITOR ── */
+.chk-editor{margin-top:4px}
+.chk-editor-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg);border-radius:var(--rsm);margin-bottom:6px;border:1px solid var(--line)}
+.chk-editor-ico{font-size:1rem;flex-shrink:0;width:22px;text-align:center}
+.chk-editor-label{flex:1;font-size:.8rem;font-weight:500;color:var(--ink)}
+.chk-editor-remove{background:none;border:none;color:var(--ink3);font-size:.9rem;cursor:pointer;padding:2px 6px;border-radius:4px;transition:all .15s;flex-shrink:0}
+.chk-editor-remove:hover{background:var(--red-dim);color:var(--red)}
+.chk-add-row{display:flex;gap:6px;margin-top:6px}
+.chk-type-sel{font-size:.75rem;border:1.5px solid var(--line);border-radius:var(--rsm);padding:6px 8px;background:var(--white);color:var(--ink);flex-shrink:0}
+
 /* ── SCHEDULE PAGE ── */
 .sch-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:8px;flex-wrap:wrap}
 .sch-nav{display:flex;align-items:center;gap:6px}
@@ -371,7 +381,7 @@ input,select,textarea{font-family:inherit}
 .wk-event:hover{filter:brightness(.9);z-index:5}
 .wk-event .ev-dog{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.63rem;font-weight:800}
 .wk-event .ev-svc{opacity:.85;font-size:.56rem}
-.ev-day_care{background:#00C896;color:#fff}.ev-walk{background:#3A7BFF;color:#fff}.ev-overnight{background:#3D3D5C;color:#fff}.ev-grooming{background:#9B59B6;color:#fff}
+.ev-day_care{background:#00C896;color:#fff}.ev-walk,.ev-walk_30,.ev-walk_60{background:#3A7BFF;color:#fff}.ev-overnight{background:#3D3D5C;color:#fff}.ev-grooming{background:#9B59B6;color:#fff}.ev-welfare_dog,.ev-welfare_cat,.ev-welfare_small{background:#FF9F1C;color:#fff}
 .ev-completed{opacity:.5}
 .month-grid{background:var(--white);border-radius:var(--rlg);box-shadow:var(--sh);overflow:hidden}
 .month-header{display:grid;grid-template-columns:repeat(7,1fr);background:#1a1a2e;color:#fff}
@@ -385,7 +395,7 @@ input,select,textarea{font-family:inherit}
 .mc-num{font-size:.7rem;font-weight:700;margin-bottom:3px;height:20px;display:flex;align-items:center}
 .mc-chips{display:flex;flex-direction:column;gap:2px}
 .mc-chip{border-radius:3px;padding:2px 3px;font-size:.52rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;line-height:1.4;color:#fff}
-.mc-chip.ev-day_care{background:#00C896}.mc-chip.ev-walk{background:#3A7BFF}.mc-chip.ev-overnight{background:#232333}.mc-chip.ev-grooming{background:#9B59B6}
+.mc-chip.ev-day_care{background:#00C896}.mc-chip.ev-walk,.mc-chip.ev-walk_30,.mc-chip.ev-walk_60{background:#3A7BFF}.mc-chip.ev-overnight{background:#232333}.mc-chip.ev-grooming{background:#9B59B6}.mc-chip.ev-welfare_dog,.mc-chip.ev-welfare_cat,.mc-chip.ev-welfare_small{background:#FF9F1C}
 .mc-chip.ev-completed{opacity:.45}
 .mc-more{font-size:.52rem;font-weight:700;color:var(--accent-dk);margin-top:1px;cursor:pointer}
 .sch-legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;padding:0 2px}
@@ -897,6 +907,7 @@ input,select,textarea{font-family:inherit}
         <div class="leg-item"><div class="leg-dot" style="background:#3A7BFF"></div>Walk</div>
         <div class="leg-item"><div class="leg-dot" style="background:#232333"></div>Overnight</div>
         <div class="leg-item"><div class="leg-dot" style="background:#9B59B6"></div>Grooming</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#FF9F1C"></div>Welfare Check</div>
       </div>
     </div>
 
@@ -998,7 +1009,9 @@ input,select,textarea{font-family:inherit}
           <div class="svc-opt" onclick="MB.svc(this,'walk_60')"><span class="svc-ico">🦮</span><span class="svc-lbl">Walk 1hr</span></div>
           <div class="svc-opt" onclick="MB.svc(this,'overnight')"><span class="svc-ico">🌙</span><span class="svc-lbl">Overnight</span></div>
           <div class="svc-opt" onclick="MB.svc(this,'grooming')"><span class="svc-ico">✂️</span><span class="svc-lbl">Grooming</span></div>
-          <div class="svc-opt" onclick="MB.svc(this,'welfare_dog')"><span class="svc-ico">🔍</span><span class="svc-lbl">Welfare</span></div>
+          <div class="svc-opt" onclick="MB.svc(this,'welfare_dog')"><span class="svc-ico">🔍</span><span class="svc-lbl">Welfare Dog</span></div>
+          <div class="svc-opt" onclick="MB.svc(this,'welfare_cat')"><span class="svc-ico">🐱</span><span class="svc-lbl">Welfare Cat</span></div>
+          <div class="svc-opt" onclick="MB.svc(this,'welfare_small')"><span class="svc-ico">🐹</span><span class="svc-lbl">Welfare Small</span></div>
         </div>
       </div>
       <div class="fr"><div class="fg"><label class="fl">Dog Name</label><input class="fi" id="bk-dog" placeholder="e.g. Biscuit"></div><div class="fg"><label class="fl">Owner Name</label><input class="fi" id="bk-own" placeholder="e.g. Sarah Johnson"></div></div>
@@ -1028,11 +1041,30 @@ input,select,textarea{font-family:inherit}
       <div class="fdiv"></div>
       <div class="modal-section-lbl">Dog Details</div>
       <div class="fr"><div class="fg"><label class="fl">Dog Name</label><input class="fi" id="cl-dog" placeholder="Biscuit"></div><div class="fg"><label class="fl">Breed</label><input class="fi" id="cl-breed" placeholder="Golden Retriever"></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Dog Icon</label><select class="fs" id="cl-emoji"><option value="🦮">🦮 Retriever</option><option value="🐕">🐕 Dachshund</option><option value="🐩">🐩 Poodle</option><option value="🐶">🐶 Other</option><option value="🐾">🐾 Mixed</option></select></div><div class="fg"><label class="fl">Date of Birth</label><input class="fi" id="cl-dob" type="date"></div></div>
+      <div class="fr"><div class="fg"><label class="fl">Pet Type</label><select class="fs" id="cl-pet-type" id="cl-emoji" onchange="MC.updatePetEmojis()">
+              <option value="dog">🐕 Dog</option>
+              <option value="cat">🐱 Cat</option>
+              <option value="small">🐹 Small Furries</option>
+            </select></div><div class="fg"><label class="fl">Date of Birth</label><input class="fi" id="cl-dob" type="date"></div></div>
       <div class="fg"><label class="fl">Vet Clinic &amp; Phone</label><input class="fi" id="cl-vet" placeholder="City Vets · 0207 000 0000"></div>
       <div class="fg"><label class="fl">Allergies / Medical Notes</label><textarea class="fta" id="cl-med" placeholder="Known allergies, health conditions…"></textarea></div>
       <div class="fg"><label class="fl">💊 Medication <span style="font-size:.7rem;font-weight:500;color:var(--ink3)">(optional)</span></label><input class="fi" id="cl-meds" placeholder="e.g. Apoquel 5mg — 1 tablet with morning food"></div>
       <div class="fg"><label class="fl">Feeding Notes</label><textarea class="fta" id="cl-feed" placeholder="Food brand, portion, times…" style="min-height:52px"></textarea></div>
+      <div class="fg">
+        <label class="fl">🩺 Care Checklist <span style="font-size:.7rem;font-weight:400;color:var(--ink3)">Customise daily checks for this dog</span></label>
+        <div class="chk-editor" id="cl-checklist"></div>
+        <div class="chk-add-row">
+          <select class="chk-type-sel" id="cl-chk-type">
+            <option value="feed">🍖 Feed</option>
+            <option value="walk">🚶 Walk</option>
+            <option value="medication">💊 Medication</option>
+            <option value="grooming">✂️ Grooming</option>
+            <option value="other">📝 Other</option>
+          </select>
+          <input class="fi" id="cl-chk-label" placeholder="e.g. Ear drops, Garden time…" style="flex:1;font-size:.78rem">
+          <button class="btn btn-accent btn-sm ripple-host" onclick="MC.addCheck()" style="flex-shrink:0">+ Add</button>
+        </div>
+      </div>
     </div>
     <div class="modal-foot"><button class="btn btn-outline" onclick="MC.close()">Cancel</button><button class="btn btn-primary ripple-host" onclick="MC.save()">Save Client</button></div>
   </div>
@@ -1048,7 +1080,7 @@ input,select,textarea{font-family:inherit}
     <div class="modal-head"><span class="modal-title">New Invoice</span><button class="modal-x" onclick="MI.close()">✕</button></div>
     <div class="modal-body">
       <div class="fr"><div class="fg"><label class="fl">Client Name</label><input class="fi" id="inv-cl" placeholder="Sarah Johnson"></div><div class="fg"><label class="fl">Dog Name</label><input class="fi" id="inv-dog" placeholder="Biscuit"></div></div>
-      <div class="fr"><div class="fg"><label class="fl">Service</label><select class="fs" id="inv-svc"><option>☀️ Day Care</option><option>🦮 Walk</option><option>🌙 Overnight</option><option>✂️ Grooming</option><option>📦 Multiple Services</option></select></div><div class="fg"><label class="fl">Amount (£)</label><input class="fi" id="inv-amt" type="number" min="0" step="0.5" placeholder="35.00"></div></div>
+      <div class="fr"><div class="fg"><label class="fl">Service</label><select class="fs" id="inv-svc"><option value="day_care">☀️ Day Care</option><option value="walk_30">🦮 Walk 30min</option><option value="walk_60">🦮 Walk 1hr</option><option value="overnight">🌙 Overnight Stay</option><option value="grooming">✂️ Grooming</option><option value="welfare_dog">🔍 Welfare Check (Dog)</option><option value="welfare_cat">🐱 Welfare Check (Cat)</option><option value="welfare_small">🐹 Welfare Check (Small Furries)</option><option value="multiple">📦 Multiple Services</option></select></div><div class="fg"><label class="fl">Amount (£)</label><input class="fi" id="inv-amt" type="number" min="0" step="0.5" placeholder="35.00"></div></div>
       <div class="fr"><div class="fg"><label class="fl">Invoice Date</label><input class="fi" id="inv-date" type="date"></div><div class="fg"><label class="fl">Due Date <span style="font-size:.7rem;font-weight:400;color:var(--ink3)">(optional)</span></label><input class="fi" id="inv-due" type="date"></div></div>
       <div class="fg"><label class="fl">Notes</label><input class="fi" id="inv-notes" placeholder="Optional note"></div>
     </div>
@@ -1173,7 +1205,7 @@ const U = {
   today: () => { const d=new Date(); return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-'); },
   fmtShort: d => { if(!d)return''; const dt=new Date(d+'T00:00:00'); return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); },
   fmtFull:  d => { if(!d)return''; const dt=new Date(d+'T00:00:00'); return dt.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'}); },
-  svcLabel: k => ({day_care:'Day Care',walk:'Walk',overnight:'Overnight',grooming:'Grooming'}[k]||k),
+  svcLabel: k => ({day_care:'Day Care',walk:'Walk',walk_30:'Walk 30min',walk_60:'Walk 1hr',overnight:'Overnight Stay',grooming:'Grooming',welfare_dog:'Welfare Check (Dog)',welfare_cat:'Welfare Check (Cat)',welfare_small:'Welfare Check (Small Furries)'}[k]||k),
   svcEmoji: k => ({day_care:'☀️',walk:'🦮',overnight:'🌙',grooming:'✂️'}[k]||'📅'),
   dogEmoji: k => ({day_care:'🦮',walk:'🐕',overnight:'🌙',grooming:'✂️'}[k]||'🐶'),
   pill: s => {
@@ -1505,7 +1537,7 @@ const PC = {
       const spend=myBk.filter(b=>b.status==='completed').reduce((s,b)=>s+(parseFloat(b.price)||0),0);
       return `<div class="cl-card" onclick="MCD.open('${c.id}')">
         <div class="cl-top"><div class="cl-av" style="background:${col}">${ini}</div><div style="flex:1"><div class="cl-name">${c.firstName} ${c.lastName}</div><div class="cl-contact">${c.phone||''}${c.email?'<br>'+c.email:''}</div></div></div>
-        ${c.dogName?`<div class="cl-dogs"><div class="dog-tag">${c.dogEmoji||'🐶'} ${c.dogName}${c.breed?' · '+c.breed:''}${(c.medication||c.medicalNotes)?' <span style="font-size:.75rem">💊</span>':''}</div></div>`:''}
+        ${c.dogName?`<div class="cl-dogs"><div class="dog-tag">${c.dogEmoji||'🐾'} ${c.dogName}${c.breed?' · '+c.breed:''}${c.petType&&c.petType!=='dog'?' · '+({cat:'Cat',small:'Small Furries'}[c.petType]||''):''}${(c.medication||c.medicalNotes)?' <span style="font-size:.75rem">💊</span>':''}</div></div>`:''}
         ${c.medicalNotes?`<div class="cl-alert">⚠️ ${c.medicalNotes}</div>`:''}
         ${c.medication?`<div class="cl-alert" style="background:rgba(155,89,182,.1);color:#7c3aed;border:none">💊 ${c.medication}</div>`:''}
         <div class="cl-stats">
@@ -1536,8 +1568,23 @@ const PCL = {
     const html = await Promise.all(active.map(async b => {
       let log=logs.find(l=>l.bookingId===b.id&&l.date===PCL._date);
       if(!log){
-        log={id:Date.now().toString(36)+Math.random().toString(36).slice(2),bookingId:b.id,dogName:b.dogName,dogEmoji:b.dogEmoji||'🐶',ownerName:b.ownerName,medication:b.medication||'',date:PCL._date,
-          checks:[{id:'f1',type:'feed',label:'Morning Feed',done:false,time:''},{id:'w1',type:'walk',label:'Morning Walk',done:false,time:''},{id:'m1',type:'medication',label:'Medication',done:false,time:''},{id:'f2',type:'feed',label:'Afternoon Feed',done:false,time:''},{id:'w2',type:'walk',label:'Afternoon Walk',done:false,time:''}],
+        // Pull careChecklist from client record, fall back to defaults
+        const clients2=await DB.getAll('clients');
+        const matchClient=clients2.find(c=>c.id===b.clientId)||(clients2.find(c=>(c.firstName+' '+c.lastName)===b.ownerName));
+        const meds=b.medication||'';
+        const defaultChecks=[
+          {id:'f1',type:'feed',label:'🍖 Morning Feed',done:false,time:''},
+          {id:'w1',type:'walk',label:'🚶 Morning Walk',done:false,time:''},
+          {id:'f2',type:'feed',label:'🍖 Evening Feed',done:false,time:''},
+          {id:'w2',type:'walk',label:'🚶 Evening Check',done:false,time:''},
+          {id:'c1',type:'other',label:'😊 Settled & Comfortable',done:false,time:''},
+        ];
+        if(meds) defaultChecks.splice(2,0,{id:'m1',type:'medication',label:'💊 '+meds,done:false,time:''});
+        const checkTemplate=matchClient&&matchClient.careChecklist&&matchClient.careChecklist.length>0
+          ? JSON.parse(JSON.stringify(matchClient.careChecklist)).map(c=>({...c,done:false,time:''}))
+          : defaultChecks;
+        log={id:Date.now().toString(36)+Math.random().toString(36).slice(2),bookingId:b.id,dogName:b.dogName,dogEmoji:b.dogEmoji||'🐶',ownerName:b.ownerName,medication:meds,date:PCL._date,
+          checks:checkTemplate,
           notes:'',createdAt:Date.now(),updatedAt:Date.now()};
         if(b.notes&&b.notes.toLowerCase().includes('medic')) log.checks[2].label=b.notes.slice(0,60);
         await DB.put('care_logs',log);
@@ -1812,7 +1859,7 @@ const MB = {
     MB._svc=key;
     MB._manualPrice=false;
     document.querySelectorAll('.svc-opt').forEach(o=>o.classList.remove('on')); el.classList.add('on');
-    const ends={day_care:'17:00',walk_30:'08:30',walk_60:'09:00',walk:'11:00',overnight:'09:00',grooming:'13:00',welfare_dog:'10:00',welfare_cat:'10:00',welfare_small:'09:15'};
+    const ends={day_care:'17:00',walk_30:'08:30',walk_60:'09:00',walk:'11:00',overnight:'09:00',grooming:'13:00',welfare_dog:'10:30',welfare_cat:'10:30',welfare_small:'09:15',welfare:'10:30'};
     const ee=document.getElementById('bk-end'); if(!ee.value||ee.value==='17:00'||ee.value==='11:00')ee.value=ends[key]||'17:00';
     await MB.recalcPrice();
   },
@@ -1822,7 +1869,8 @@ const MB = {
     const prices=await PS.getSvcPrices();
     const key=MB._svc;
     const extraDogs=parseInt(document.getElementById('bk-extra-dogs').value)||0;
-    const basePrice=prices[key]||prices['day_care']||35;
+    const priceMap={walk_30:'walk_30',walk_60:'walk_60',walk:'walk_30',welfare_dog:'welfare_dog',welfare_cat:'welfare_cat',welfare_small:'welfare_small',overnight:'overnight',day_care:'day_care',grooming:'grooming'};
+    const basePrice=prices[priceMap[key]||key]||prices['day_care']||35;
     let total=basePrice;
     let breakdown='';
     if(extraDogs>0 && (key==='walk_30'||key==='walk_60'||key==='walk')){
@@ -1943,19 +1991,78 @@ const MD = {
 
 // CLIENT FORM
 const MC = {
-  _id:null, _afterSave:null,
+  _id:null, _afterSave:null, _checks:[], _petEmoji:'🐕',
+
+  _defaultChecks(medication) {
+    const checks=[
+      {id:'f1',type:'feed',label:'🍖 Morning Feed',done:false,time:''},
+      {id:'w1',type:'walk',label:'🚶 Morning Walk',done:false,time:''},
+      {id:'f2',type:'feed',label:'🍖 Evening Feed',done:false,time:''},
+      {id:'w2',type:'walk',label:'🚶 Evening Check',done:false,time:''},
+      {id:'c1',type:'other',label:'😊 Settled & Comfortable',done:false,time:''},
+    ];
+    if(medication) checks.splice(2,0,{id:'m1',type:'medication',label:'💊 '+medication,done:false,time:''});
+    return checks;
+  },
+
+  _renderChecklist(){
+    const ico={feed:'🍖',walk:'🚶',medication:'💊',grooming:'✂️',other:'📝'};
+    const el=document.getElementById('cl-checklist');
+    if(!el)return;
+    if(!MC._checks||MC._checks.length===0){
+      el.innerHTML='<div style="font-size:.75rem;color:var(--ink3);padding:6px 2px;line-height:1.5">No custom items — defaults will apply. Add items below.</div>';
+      return;
+    }
+    el.innerHTML=MC._checks.map((c,i)=>`
+      <div class="chk-editor-item">
+        <span class="chk-editor-ico">${ico[c.type]||'📝'}</span>
+        <span class="chk-editor-label">${c.label}</span>
+        <button class="chk-editor-remove" onclick="MC.removeCheck(${i})">✕</button>
+      </div>`).join('');
+  },
+
+  addCheck(){
+    const typeEl=document.getElementById('cl-chk-type');
+    const labelEl=document.getElementById('cl-chk-label');
+    if(!typeEl||!labelEl)return;
+    const type=typeEl.value, label=labelEl.value.trim();
+    if(!label){App.toast('Enter a label');return;}
+    const ico={feed:'🍖',walk:'🚶',medication:'💊',grooming:'✂️',other:'📝'};
+    if(!MC._checks)MC._checks=[];
+    MC._checks.push({id:'c'+Date.now(),type,label:ico[type]+' '+label,done:false,time:''});
+    labelEl.value='';
+    MC._renderChecklist();
+  },
+
+  removeCheck(i){
+    MC._checks.splice(i,1);
+    MC._renderChecklist();
+  },
+  updatePetEmojis(){
+    const type=document.getElementById('cl-pet-type')?.value||'dog';
+    const emojiMap={dog:'🐕',cat:'🐱',small:'🐹'};
+    MC._petEmoji=emojiMap[type]||'🐕';
+  },
+
   open(editId=null){
     MC._id=editId;
     document.getElementById('clModalTitle').textContent=editId?'Edit Client':'Add Client';
     ['cl-first','cl-last','cl-phone','cl-email','cl-emerg','cl-dog','cl-breed','cl-vet','cl-med','cl-meds','cl-feed'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('cl-dob').value='';document.getElementById('cl-emoji').value='🦮';
+    MC._checks=[]; MC._renderChecklist();
+    document.getElementById('cl-dob').value='';
+    const ptEl=document.getElementById('cl-pet-type'); if(ptEl) ptEl.value='dog';
+    MC._petEmoji='🐕';
     if(editId){DB.get('clients',editId).then(c=>{if(!c)return;
       document.getElementById('cl-first').value=c.firstName||'';document.getElementById('cl-last').value=c.lastName||'';
       document.getElementById('cl-phone').value=c.phone||'';document.getElementById('cl-email').value=c.email||'';
       document.getElementById('cl-emerg').value=c.emergencyContact||'';document.getElementById('cl-dog').value=c.dogName||'';
-      document.getElementById('cl-breed').value=c.breed||'';document.getElementById('cl-emoji').value=c.dogEmoji||'🦮';
+      document.getElementById('cl-breed').value=c.breed||'';
+      const ptEl2=document.getElementById('cl-pet-type'); if(ptEl2) ptEl2.value=c.petType||'dog';
+      MC.updatePetEmojis();
       document.getElementById('cl-dob').value=c.dob||'';document.getElementById('cl-vet').value=c.vet||'';
       document.getElementById('cl-med').value=c.medicalNotes||'';document.getElementById('cl-meds').value=c.medication||'';document.getElementById('cl-feed').value=c.feedingNotes||'';
+    MC._checks=c.careChecklist?JSON.parse(JSON.stringify(c.careChecklist)):MC._defaultChecks(c.medication||'');
+    MC._renderChecklist();
     });}
     mOpen('clModal');
   },
@@ -1963,7 +2070,10 @@ const MC = {
   async save(){
     const first=document.getElementById('cl-first').value.trim(),last=document.getElementById('cl-last').value.trim();
     if(!first||!last){App.toast('⚠️ First and last name required');return;}
-    const rec={id:MC._id||'',firstName:first,lastName:last,phone:document.getElementById('cl-phone').value.trim(),email:document.getElementById('cl-email').value.trim(),emergencyContact:document.getElementById('cl-emerg').value.trim(),dogName:document.getElementById('cl-dog').value.trim(),breed:document.getElementById('cl-breed').value.trim(),dogEmoji:document.getElementById('cl-emoji').value,dob:document.getElementById('cl-dob').value,vet:document.getElementById('cl-vet').value.trim(),medicalNotes:document.getElementById('cl-med').value.trim(),medication:document.getElementById('cl-meds').value.trim(),feedingNotes:document.getElementById('cl-feed').value.trim()};
+    const meds=document.getElementById('cl-meds').value.trim();const careChecklist=MC._checks.length>0?MC._checks:MC._defaultChecks(meds);
+const petType=document.getElementById('cl-pet-type')?.value||'dog';
+const emojiByType={dog:'🐕',cat:'🐱',small:'🐹'};
+const rec={id:MC._id||'',firstName:first,lastName:last,phone:document.getElementById('cl-phone').value.trim(),email:document.getElementById('cl-email').value.trim(),emergencyContact:document.getElementById('cl-emerg').value.trim(),dogName:document.getElementById('cl-dog').value.trim(),breed:document.getElementById('cl-breed').value.trim(),dogEmoji:emojiByType[petType]||'🐕',petType,dob:document.getElementById('cl-dob').value,vet:document.getElementById('cl-vet').value.trim(),medicalNotes:document.getElementById('cl-med').value.trim(),medication:meds,feedingNotes:document.getElementById('cl-feed').value.trim(),careChecklist};
     await DB.put('clients',rec); MC.close(); App.toast(MC._id?'✅ Client updated':'✅ Client saved');
     await refresh();
     if(MC._afterSave){ MC._afterSave(rec); MC._afterSave=null; }
