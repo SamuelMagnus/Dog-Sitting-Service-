@@ -227,7 +227,7 @@ input,select,textarea{font-family:inherit}
 .spinner{width:24px;height:24px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading{text-align:center;padding:28px;color:var(--ink3);font-size:.85rem}
-.toast{position:fixed;bottom:80px;left:12px;right:12px;background:var(--ink);color:#fff;padding:13px 16px;border-radius:var(--r);font-size:.84rem;font-weight:600;z-index:600;transform:translateY(16px);opacity:0;transition:all .25s cubic-bezier(.34,1.56,.64,1);max-width:400px;margin:0 auto;pointer-events:none}
+.toast{position:fixed;bottom:80px;left:12px;right:12px;background:#0D0D0D;color:#fff;padding:13px 16px;border-radius:var(--r);font-size:.78rem;font-weight:500;letter-spacing:.1px;z-index:600;transform:translateY(16px);opacity:0;transition:all .25s cubic-bezier(.34,1.56,.64,1);max-width:400px;margin:0 auto;pointer-events:none;border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.4)}
 .toast.show{transform:translateY(0);opacity:1}
 .cp-row{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s}
 .cp-row:hover{background:var(--bg)}
@@ -490,7 +490,10 @@ input,select,textarea{font-family:inherit}
 /* Tab active state */
 [data-theme="midnight"] .tab.active,
 [data-theme="charcoal"] .tab.active,
-[data-theme="plum"] .tab.active { background:var(--white);color:var(--ink) }
+[data-theme="plum"] .tab.active { background:rgba(255,255,255,.12);color:var(--ink);box-shadow:none }
+[data-theme="midnight"] .tab,
+[data-theme="charcoal"] .tab,
+[data-theme="plum"] .tab { color:var(--ink2) }
 
 /* Booking stripe */
 [data-theme="midnight"] .bk-stripe,
@@ -584,6 +587,22 @@ input,select,textarea{font-family:inherit}
 .wh-dow  { color:rgba(255,255,255,.55) }
 .wh-date { color:#fff }
 .mh-day  { color:rgba(255,255,255,.55) }
+
+/* Toast always dark regardless of theme */
+[data-theme="midnight"] .toast,
+[data-theme="charcoal"] .toast,
+[data-theme="plum"] .toast {
+  background:#1a1a2e;
+  border:1px solid rgba(255,255,255,.15);
+  color:#fff;
+}
+/* Toast in light themes — stay dark */
+[data-theme="emerald"] .toast,
+[data-theme="lavender"] .toast,
+[data-theme="sunrise"] .toast {
+  background:#0D0D0D;
+  color:#fff;
+}
 
 </style>
 </head>
