@@ -1919,12 +1919,14 @@ const MD = {
         <div class="detail-row"><span class="detail-k">Price</span><span class="detail-v">${U.fmt(b.price)}</span></div>
         ${b.notes?`<div style="margin-top:12px;padding:10px 12px;background:var(--amber-dim);border-radius:var(--rsm);font-size:.8rem;color:var(--ink2)">📝 ${b.notes}</div>`:''}
       </div>
-      <div class="modal-foot" style="flex-wrap:wrap;gap:8px">
-        <button class="btn btn-outline btn-sm" onclick="mClose('bkDetail');MB.open('${b.id}')">Edit</button>
-        ${b.status!=='completed'?`<button class="btn btn-accent btn-sm ripple-host" onclick="MD.complete('${b.id}')">Mark Complete</button>`:''}
-        ${b.status==='completed'&&b.clientId?`<button class="btn btn-outline btn-sm ripple-host" style="color:#25D366;border-color:#25D366" onclick="MD.sendReportCard('${b.id}')">📋 WhatsApp Report</button>`:''}
-        ${b.status==='confirmed'?`<button class="btn btn-outline btn-sm ripple-host" style="color:#25D366;border-color:#25D366" onclick="MD.sendConfirm('${b.id}')">💬 WhatsApp Confirm</button>`:''}
-        <button class="btn btn-danger btn-sm" onclick="MD.del('${b.id}')">Delete</button>
+      <div style="padding:12px 16px 4px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px">
+        ${b.status!=='completed'?`<button class="btn btn-accent btn-block ripple-host" style="font-size:.85rem;padding:12px" onclick="MD.complete('${b.id}')">✓ Mark as Complete</button>`:''}
+        ${b.status==='confirmed'?`<button class="btn btn-block ripple-host" style="font-size:.85rem;padding:12px;background:#25D366;color:#fff" onclick="MD.sendConfirm('${b.id}')">💬 Send WhatsApp Confirmation</button>`:''}
+        ${b.status==='completed'?`<button class="btn btn-block ripple-host" style="font-size:.85rem;padding:12px;background:#25D366;color:#fff" onclick="MD.sendReportCard('${b.id}')">📋 Send WhatsApp Report Card</button>`:''}
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button class="btn btn-outline ripple-host" style="flex:1;font-size:.78rem" onclick="mClose('bkDetail');MB.open('${b.id}')">✏️ Edit</button>
+          <button class="btn btn-danger ripple-host" style="flex:1;font-size:.78rem" onclick="MD.del('${b.id}')">🗑 Delete</button>
+        </div>
       </div>`;
     mOpen('bkDetail');
   },
