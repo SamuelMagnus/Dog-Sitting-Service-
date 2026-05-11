@@ -1006,7 +1006,7 @@ const PD = {
     // Also alert for bookings with medication field set (confirmed/active today)
     todayBk.filter(b=>b.medication&&(b.status==='confirmed'||b.status==='active')).forEach(b=>{
       if(!alerts.find(a=>a.t&&a.t.includes(b.dogName)&&a.ico==='💊'))
-        alerts.push({ico:'💊',urgency:1,t:`<strong>${b.dogName}</strong> — medication: ${b.medication}`});
+        alerts.push({ico:'💊',urgency:1,t:`<strong>${b.dogName}</strong> — ${b.medication}`});
     });
 
     // Medical flags for dogs arriving today with client medical notes
@@ -1113,8 +1113,9 @@ const PC = {
       const spend=myBk.filter(b=>b.status==='completed').reduce((s,b)=>s+(parseFloat(b.price)||0),0);
       return `<div class="cl-card" onclick="MCD.open('${c.id}')">
         <div class="cl-top"><div class="cl-av" style="background:${col}">${ini}</div><div style="flex:1"><div class="cl-name">${c.firstName} ${c.lastName}</div><div class="cl-contact">${c.phone||''}${c.email?'<br>'+c.email:''}</div></div></div>
-        ${c.dogName?`<div class="cl-dogs"><div class="dog-tag">${c.dogEmoji||'🐶'} ${c.dogName}${c.breed?' · '+c.breed:''}${c.medication?' 💊':''}</div></div>`:''}
+        ${c.dogName?`<div class="cl-dogs"><div class="dog-tag">${c.dogEmoji||'🐶'} ${c.dogName}${c.breed?' · '+c.breed:''}${(c.medication||c.medicalNotes)?' <span style="font-size:.75rem">💊</span>':''}</div></div>`:''}
         ${c.medicalNotes?`<div class="cl-alert">⚠️ ${c.medicalNotes}</div>`:''}
+        ${c.medication?`<div class="cl-alert" style="background:rgba(155,89,182,.1);color:#7c3aed;border:none">💊 ${c.medication}</div>`:''}
         <div class="cl-stats">
           <div class="cl-stat"><div class="cl-stat-val">${myBk.length}</div><div class="cl-stat-lbl">Bookings</div></div>
           <div class="cl-stat"><div class="cl-stat-val">${U.fmt(spend)}</div><div class="cl-stat-lbl">Spent</div></div>
@@ -1263,7 +1264,7 @@ const MB = {
         MB._svc = b.service||'day_care';
         const m={day_care:0,walk:1,overnight:2,grooming:3};
         document.querySelectorAll('.svc-opt').forEach((o,i)=>o.classList.toggle('on',i===m[b.service||'day_care']));
-        if (b.clientId) DB.get('clients', b.clientId).then(c=>{ if(c){ MB._showClientCard(c); MB._clientMeds=c.medication||''; } });
+        if (b.clientId) DB.get('clients', b.clientId).then(c=>{ if(c){ MB._showClientCard(c); MB._clientMeds=[c.medication,c.medicalNotes].filter(Boolean).join(' | '); } });
       });
       return;
     }
@@ -1327,7 +1328,7 @@ const MB = {
 
   _applyClient(c) {
     MB._clientId = c.id;
-    MB._clientMeds = c.medication||'';
+    MB._clientMeds = [c.medication, c.medicalNotes].filter(Boolean).join(' | ');
     document.getElementById('bk-dog').value  = c.dogName||'';
     document.getElementById('bk-own').value  = c.firstName+' '+c.lastName;
     // Auto-populate notes with medical info
@@ -1406,7 +1407,7 @@ const MD = {
     // Backfill medication from client record if not stored on booking yet
     if(!b.medication && b.clientId){
       const cl=await DB.get('clients',b.clientId);
-      if(cl&&cl.medication) b.medication=cl.medication;
+      if(cl) b.medication=[cl.medication,cl.medicalNotes].filter(Boolean).join(' | ');
     }
     document.getElementById('bkDetailContent').innerHTML=`
       <div class="modal-handle"></div>
@@ -1514,7 +1515,17 @@ const MCD = {
           <div style="width:50px;height:50px;border-radius:50%;background:${col};display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:800;color:#fff;flex-shrink:0">${ini}</div>
           <div>${c.phone?`<div style="font-size:.84rem;margin-bottom:3px">📞 ${c.phone}</div>`:''} ${c.email?`<div style="font-size:.84rem;margin-bottom:3px">✉️ ${c.email}</div>`:''} ${c.emergencyContact?`<div style="font-size:.78rem;color:var(--ink3)">🆘 ${c.emergencyContact}</div>`:''}</div>
         </div>
-        ${c.dogName?`<div style="background:var(--bg);border-radius:var(--rsm);padding:12px 14px;margin-bottom:12px"><div style="font-size:.88rem;font-weight:700;margin-bottom:6px">${c.dogEmoji||'🐶'} ${c.dogName}${age?' ('+age+')':''}</div>${c.breed?`<div style="font-size:.78rem;color:var(--ink3);margin-bottom:3px">Breed: ${c.breed}</div>`:''} ${c.vet?`<div style="font-size:.78rem;color:var(--ink3);margin-bottom:3px">🏥 ${c.vet}</div>`:''} ${c.medicalNotes?`<div style="font-size:.78rem;color:var(--red);margin-bottom:3px">⚠️ ${c.medicalNotes}</div>`:''}${c.medication?`<div style="font-size:.78rem;font-weight:700;color:#7c3aed;margin-bottom:3px;background:rgba(155,89,182,.1);padding:4px 7px;border-radius:5px">💊 Medication: ${c.medication}</div>`:''} ${c.feedingNotes?`<div style="font-size:.78rem;color:var(--ink2)">🍖 ${c.feedingNotes}</div>`:''}</div>`:''}
+        ${c.dogName?(()=>{
+          const hasMeds = c.medication||c.medicalNotes;
+          return `<div style="background:var(--bg);border-radius:var(--rsm);padding:12px 14px;margin-bottom:12px">
+            <div style="font-size:.95rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px">${c.dogEmoji||'🐶'} ${c.dogName}${age?' <span style=\"font-size:.72rem;font-weight:500;color:var(--ink3)\">('+age+')</span>':''} ${hasMeds?'<span style=\"font-size:1rem\">💊</span>':''}</div>
+            ${c.breed?`<div style="font-size:.78rem;color:var(--ink3);margin-bottom:4px">🐾 Breed: ${c.breed}</div>`:''}
+            ${c.vet?`<div style="font-size:.78rem;color:var(--ink3);margin-bottom:4px">🏥 Vet: ${c.vet}</div>`:''}
+            ${c.medicalNotes?`<div style="font-size:.78rem;color:var(--red);background:var(--red-dim);border-radius:6px;padding:6px 9px;margin-bottom:4px">⚠️ <strong>Medical Note:</strong> ${c.medicalNotes}</div>`:''}
+            ${c.medication?`<div style="font-size:.78rem;font-weight:600;color:#4c1d95;background:rgba(155,89,182,.12);border-radius:6px;padding:6px 9px;margin-bottom:4px;border-left:3px solid #9B59B6">💊 <strong>Medication:</strong> ${c.medication}</div>`:''}
+            ${c.feedingNotes?`<div style="font-size:.78rem;color:var(--ink2);background:var(--white);border-radius:6px;padding:6px 9px">🍖 <strong>Feeding:</strong> ${c.feedingNotes}</div>`:''}
+          </div>`;
+        })():''}
         <div style="display:flex;border:1px solid var(--line);border-radius:var(--rsm);overflow:hidden;margin-bottom:14px">
           <div style="flex:1;text-align:center;padding:10px;border-right:1px solid var(--line)"><div style="font-weight:800">${myBk.length}</div><div style="font-size:.65rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px">Bookings</div></div>
           <div style="flex:1;text-align:center;padding:10px"><div style="font-weight:800">${U.fmt(spend)}</div><div style="font-size:.65rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px">Total Spent</div></div>
