@@ -1922,9 +1922,30 @@ const MD = {
       <div class="modal-foot" style="flex-wrap:wrap;gap:8px">
         <button class="btn btn-outline btn-sm" onclick="mClose('bkDetail');MB.open('${b.id}')">Edit</button>
         ${b.status!=='completed'?`<button class="btn btn-accent btn-sm ripple-host" onclick="MD.complete('${b.id}')">Mark Complete</button>`:''}
+        ${b.status==='completed'&&b.clientId?`<button class="btn btn-outline btn-sm ripple-host" style="color:#25D366;border-color:#25D366" onclick="MD.sendReportCard('${b.id}')">📋 WhatsApp Report</button>`:''}
+        ${b.status==='confirmed'?`<button class="btn btn-outline btn-sm ripple-host" style="color:#25D366;border-color:#25D366" onclick="MD.sendConfirm('${b.id}')">💬 WhatsApp Confirm</button>`:''}
         <button class="btn btn-danger btn-sm" onclick="MD.del('${b.id}')">Delete</button>
       </div>`;
     mOpen('bkDetail');
+  },
+
+  async sendConfirm(id) {
+    const b = await DB.get('bookings', id); if(!b) return;
+    const clients = await DB.getAll('clients');
+    const cl = clients.find(c=>c.id===b.clientId);
+    const phone = cl?.phone || '';
+    WA.send(phone, WA.bookingConfirm(b));
+  },
+
+  async sendReportCard(id) {
+    const b = await DB.get('bookings', id); if(!b) return;
+    const clients = await DB.getAll('clients');
+    const cl = clients.find(c=>c.id===b.clientId);
+    const logs = await DB.getAll('care_logs');
+    const log = logs.find(l=>l.bookingId===b.id);
+    const phone = cl?.phone || '';
+    WA.send(phone, WA.reportCard(b, log));
+    App.toast('📋 Opening WhatsApp report card…');
   },
   async complete(id){
     const b=await DB.get('bookings',id);
@@ -2193,7 +2214,8 @@ const MID = {
         ${inv.status!=='paid'?`<button class="btn btn-accent btn-block ripple-host" style="font-size:.85rem;padding:12px" onclick="MID.pay('${inv.id}')">✓ Mark as Paid</button>`:''}
         <div style="display:flex;gap:8px">
           <button class="btn btn-outline ripple-host" style="flex:1;font-size:.78rem" onclick="MID.print('${inv.id}')">🖨 Print</button>
-          <button class="btn btn-primary ripple-host" style="flex:2;font-size:.78rem" onclick="MID.email('${inv.id}')">✉️ Email Receipt</button>
+          <button class="btn btn-primary ripple-host" style="flex:1;font-size:.78rem" onclick="MID.email('${inv.id}')">✉️ Email</button>
+          <button class="btn btn-outline ripple-host" style="flex:1;font-size:.78rem;color:#25D366;border-color:#25D366" onclick="MID.whatsapp('${inv.id}')">💬 WhatsApp</button>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:8px">
           <button class="btn btn-outline" style="flex:1;font-size:.78rem" onclick="mClose('invDetail')">Close</button>
@@ -2202,6 +2224,24 @@ const MID = {
       </div>`;
     mOpen('invDetail');
   },
+  async whatsapp(id) {
+    const inv = await DB.get('invoices', id); if(!inv) return;
+    const clients = await DB.getAll('clients');
+    const cl = clients.find(c=>(c.firstName+' '+c.lastName)===inv.clientName||c.id===inv.clientId);
+    const phone = cl?.phone || '';
+    // 1. Generate and show receipt image (user saves it)
+    mClose('invDetail');
+    await MID.email(id);
+    // 2. Wire the "Open Email App" button to open WhatsApp instead
+    const waMsg = WA.invoiceMsg(inv);
+    const btn = document.getElementById('receiptEmailBtn');
+    if(btn){
+      btn.textContent = '💬 Open WhatsApp';
+      btn.style.background = '#25D366';
+      btn.onclick = () => WA.send(phone, waMsg);
+    }
+  },
+
   async pay(id){const i=await DB.get('invoices',id);i.status='paid';i.paidAt=Date.now();await DB.put('invoices',i);mClose('invDetail');launchConfetti();App.toast('✅ '+i.invoiceNumber+' marked as paid');await refresh();},
   async del(id){if(!confirm('Delete this invoice?'))return;await DB.del('invoices',id);mClose('invDetail');App.toast('🗑️ Invoice deleted');await refresh();},
 
@@ -2962,6 +3002,95 @@ document.addEventListener('pointerdown', e => {
   btn.appendChild(wave);
   wave.addEventListener('animationend', () => wave.remove());
 });
+
+
+
+// ── WHATSAPP ──
+const WA = {
+  // Open WhatsApp to a phone number with a message
+  send(phone, message) {
+    // Strip non-digits, ensure UK format
+    const num = phone ? phone.replace(/[^0-9]/g,'').replace(/^0/,'44') : '';
+    const url = num
+      ? `https://wa.me/${num}?text=${encodeURIComponent(message)}`
+      : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  },
+
+  // Booking confirmation message
+  bookingConfirm(b) {
+    const biz = App.profile.biz || 'Homeward Hounds Adventures';
+    const date = U.fmtFull(b.date);
+    const time = b.time ? b.time + (b.endTime ? ' – ' + b.endTime : '') : '';
+    const svc  = U.svcLabel(b.service);
+    const msg = `Hi ${b.ownerName.split(' ')[0]}! ✅ Booking confirmed for ${b.dogName}\n\n🐾 ${svc}\n📅 ${date}${time ? '\n🕐 ' + time : ''}\n\nSee you then! 😊\n${biz}`;
+    return msg;
+  },
+
+  // Daily report card
+  reportCard(b, log) {
+    const biz  = App.profile.biz || 'Homeward Hounds Adventures';
+    const done = log ? log.checks.filter(c=>c.done) : [];
+    const name = b.ownerName.split(' ')[0];
+    const lines = done.map(c => `✅ ${c.label}${c.time ? ' (' + c.time + ')' : ''}`).join('\n');
+    const notes = log?.notes ? `\n\n📝 Notes: ${log.notes}` : '';
+    const msg = `Hi ${name}! Here's ${b.dogName}'s report card for today 🐾\n\n${lines || '✅ All good today!'}${notes}\n\nThank you for choosing ${biz}! 🌟`;
+    return msg;
+  },
+
+  // Invoice receipt message
+  invoiceMsg(inv) {
+    const biz = App.profile.biz || 'Homeward Hounds Adventures';
+    const name = inv.clientName.split(' ')[0];
+    const msg = `Hi ${name}! 🧾 Please find your receipt for ${inv.invoiceNumber} attached.\n\n🐾 ${inv.dogName} — ${inv.service}\n💰 ${U.fmt(inv.amount)}\n\nThank you for choosing ${biz}! 🌟`;
+    return msg;
+  }
+};
+
+// ── BACK BUTTON HANDLER ──
+(function(){
+  let lastBack = 0;
+  let exitReady = false;
+
+  // Push initial state so we can intercept popstate
+  history.pushState({page:'app'}, '');
+
+  function handleBack() {
+    // If any modal is open, close it and push state again
+    const openModal = document.querySelector('.modal-ov.open');
+    if (openModal) {
+      openModal.classList.remove('open');
+      history.pushState({page:'app'}, '');
+      return;
+    }
+
+    // If not on dashboard, go home
+    if (App.page !== 'dashboard') {
+      App.nav('dashboard', document.getElementById('sb-dashboard'));
+      history.pushState({page:'app'}, '');
+      exitReady = false;
+      return;
+    }
+
+    // On dashboard — first back shows toast, second back exits
+    const now = Date.now();
+    if (exitReady && now - lastBack < 2500) {
+      // Actually exit — let the browser handle it
+      history.back();
+      history.back(); // go back past our pushed state
+      return;
+    }
+    exitReady = true;
+    lastBack = now;
+    App.toast('Press back again to exit');
+    history.pushState({page:'app'}, '');
+    setTimeout(() => { exitReady = false; }, 2500);
+  }
+
+  window.addEventListener('popstate', (e) => {
+    handleBack();
+  });
+})();
 
 // ═══════════════ PWA SETUP ═══════════════
 if ('serviceWorker' in navigator) {
