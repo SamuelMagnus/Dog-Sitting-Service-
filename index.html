@@ -774,14 +774,41 @@ input,select,textarea{font-family:inherit}
       <div class="card">
         <div class="card-head"><span class="card-title">Service Prices</span></div>
         <div class="card-p">
-          <p style="font-size:.8rem;color:var(--ink3);margin-bottom:12px">Default prices auto-fill when you select a service on a booking. You can always override per booking.</p>
-          <div class="fr" style="gap:10px;margin-bottom:10px">
-            <div class="fg"><label class="fl">☀️ Day Care (£)</label><input class="fi" id="sp-day_care" type="number" min="0" step="0.5" placeholder="35"></div>
-            <div class="fg"><label class="fl">🦮 Walk (£)</label><input class="fi" id="sp-walk" type="number" min="0" step="0.5" placeholder="15"></div>
+          <p style="font-size:.75rem;color:var(--ink3);margin-bottom:10px">Prices auto-fill on bookings. Override per booking anytime.</p>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);margin-bottom:8px">🦮 Dog Walking</div>
+          <div class="fr" style="gap:8px;margin-bottom:8px">
+            <div class="fg"><label class="fl">Solo 30 min (£)</label><input class="fi" id="sp-walk_30" type="number" min="0" step="0.5" placeholder="14"></div>
+            <div class="fg"><label class="fl">Solo 1 hour (£)</label><input class="fi" id="sp-walk_60" type="number" min="0" step="0.5" placeholder="18"></div>
           </div>
-          <div class="fr" style="gap:10px;margin-bottom:14px">
-            <div class="fg"><label class="fl">🌙 Overnight (£)</label><input class="fi" id="sp-overnight" type="number" min="0" step="0.5" placeholder="55"></div>
-            <div class="fg"><label class="fl">✂️ Grooming (£)</label><input class="fi" id="sp-grooming" type="number" min="0" step="0.5" placeholder="45"></div>
+          <div class="fr" style="gap:8px;margin-bottom:12px">
+            <div class="fg"><label class="fl">Additional dog (£)</label><input class="fi" id="sp-walk_extra" type="number" min="0" step="0.5" placeholder="4"></div>
+            <div class="fg"></div>
+          </div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);margin-bottom:8px">🏠 Pet Sitting</div>
+          <div class="fr" style="gap:8px;margin-bottom:8px">
+            <div class="fg"><label class="fl">Overnight (£)</label><input class="fi" id="sp-overnight" type="number" min="0" step="0.5" placeholder="40"></div>
+            <div class="fg"><label class="fl">Additional pet/night (£)</label><input class="fi" id="sp-overnight_extra" type="number" min="0" step="0.5" placeholder="5"></div>
+          </div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);margin-bottom:8px">🔍 Welfare Checks</div>
+          <div class="fr" style="gap:8px;margin-bottom:8px">
+            <div class="fg"><label class="fl">Dog 30 min (£)</label><input class="fi" id="sp-welfare_dog" type="number" min="0" step="0.5" placeholder="13"></div>
+            <div class="fg"><label class="fl">Cat 30 min (£)</label><input class="fi" id="sp-welfare_cat" type="number" min="0" step="0.5" placeholder="10"></div>
+          </div>
+          <div class="fr" style="gap:8px;margin-bottom:8px">
+            <div class="fg"><label class="fl">Small furries 15 min (£)</label><input class="fi" id="sp-welfare_small" type="number" min="0" step="0.5" placeholder="7"></div>
+            <div class="fg"></div>
+          </div>
+          <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);margin-bottom:8px">✂️ Other</div>
+          <div class="fr" style="gap:8px;margin-bottom:8px">
+            <div class="fg"><label class="fl">Day Care (£)</label><input class="fi" id="sp-day_care" type="number" min="0" step="0.5" placeholder="35"></div>
+            <div class="fg"><label class="fl">Grooming (£)</label><input class="fi" id="sp-grooming" type="number" min="0" step="0.5" placeholder="45"></div>
+          </div>
+          <div style="background:var(--accent-dim);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px">
+            <div style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--accent-dk);margin-bottom:8px">🎉 Weekly Walk Discount</div>
+            <div class="fr" style="gap:8px">
+              <div class="fg"><label class="fl">Min walks/week</label><input class="fi" id="sp-disc_walks" type="number" min="1" max="20" placeholder="4"></div>
+              <div class="fg"><label class="fl">Discount %</label><input class="fi" id="sp-disc_pct" type="number" min="0" max="100" placeholder="10"></div>
+            </div>
           </div>
           <button class="btn btn-primary btn-block" onclick="PS.savePrices()">Save Prices</button>
         </div>
@@ -849,6 +876,36 @@ input,select,textarea{font-family:inherit}
       </div>
     </div>
 
+    <!-- DISCOUNT PROMPT MODAL -->
+    <div class="modal-ov" id="discountPromptModal">
+      <div class="modal" style="max-height:88vh">
+        <div class="modal-head">
+          <span class="modal-title">🎉 Weekly Discount Available</span>
+          <button class="modal-x" onclick="mClose('discountPromptModal')">✕</button>
+        </div>
+        <div style="padding:14px 16px">
+          <div style="font-size:.82rem;font-weight:700;color:var(--ink);margin-bottom:8px" id="dp-title"></div>
+          <div style="background:var(--bg);border-radius:var(--rsm);padding:10px 12px;margin-bottom:12px;font-size:.76rem;color:var(--ink2);line-height:1.8" id="dp-lines"></div>
+          <div style="background:var(--accent-dim);border-radius:var(--rsm);padding:10px 12px;margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--ink2);margin-bottom:4px">
+              <span>Subtotal</span><span id="dp-subtotal" style="font-weight:600"></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--accent-dk);margin-bottom:4px;font-weight:700">
+              <span>Discount</span><span id="dp-disc"></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:.92rem;font-weight:800;color:var(--ink);border-top:1px solid var(--line);padding-top:6px;margin-top:4px">
+              <span>Total</span><span id="dp-total"></span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-accent btn-block ripple-host" id="dp-weekly-btn">🎉 Create Weekly Invoice with Discount</button>
+            <button class="btn btn-outline btn-block ripple-host" id="dp-single-btn">Invoice This Booking Only</button>
+            <button class="btn btn-ghost btn-block" id="dp-cancel-btn">Not Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- RECEIPT IMAGE MODAL -->
     <div class="modal-ov" id="receiptImgModal">
       <div class="modal" style="max-height:88vh">
@@ -913,14 +970,17 @@ input,select,textarea{font-family:inherit}
       <div class="fg"><label class="fl">Service</label>
         <div class="svc-grid">
           <div class="svc-opt on" onclick="MB.svc(this,'day_care')"><span class="svc-ico">☀️</span><span class="svc-lbl">Day Care</span></div>
-          <div class="svc-opt" onclick="MB.svc(this,'walk')"><span class="svc-ico">🦮</span><span class="svc-lbl">Walk</span></div>
+          <div class="svc-opt" onclick="MB.svc(this,'walk_30')"><span class="svc-ico">🦮</span><span class="svc-lbl">Walk 30m</span></div>
+          <div class="svc-opt" onclick="MB.svc(this,'walk_60')"><span class="svc-ico">🦮</span><span class="svc-lbl">Walk 1hr</span></div>
           <div class="svc-opt" onclick="MB.svc(this,'overnight')"><span class="svc-ico">🌙</span><span class="svc-lbl">Overnight</span></div>
           <div class="svc-opt" onclick="MB.svc(this,'grooming')"><span class="svc-ico">✂️</span><span class="svc-lbl">Grooming</span></div>
+          <div class="svc-opt" onclick="MB.svc(this,'welfare_dog')"><span class="svc-ico">🔍</span><span class="svc-lbl">Welfare</span></div>
         </div>
       </div>
       <div class="fr"><div class="fg"><label class="fl">Dog Name</label><input class="fi" id="bk-dog" placeholder="e.g. Biscuit"></div><div class="fg"><label class="fl">Owner Name</label><input class="fi" id="bk-own" placeholder="e.g. Sarah Johnson"></div></div>
       <div class="fr"><div class="fg"><label class="fl">Date</label><input class="fi" id="bk-date" type="date"></div><div class="fg"><label class="fl">Start Time</label><input class="fi" id="bk-time" type="time" value="08:00"></div></div>
-      <div class="fr"><div class="fg"><label class="fl">End Time</label><input class="fi" id="bk-end" type="time" value="17:00"></div><div class="fg"><label class="fl">Price (£)</label><input class="fi" id="bk-price" type="number" min="0" step="0.5" placeholder="35.00"></div></div>
+      <div class="fr"><div class="fg"><label class="fl">End Time</label><input class="fi" id="bk-end" type="time" value="17:00"></div><div class="fg"><label class="fl">Price (£)</label><input class="fi" id="bk-price" type="number" min="0" step="0.5" placeholder="35.00" oninput="MB._manualPrice=true"></div><div class="fg"><label class="fl">Extra dogs <span style="font-size:.62rem;color:var(--ink3)">(same household)</span></label><input class="fi" id="bk-extra-dogs" type="number" min="0" max="10" placeholder="0" value="0" oninput="MB.recalcPrice()"></div></div>
+      <div id="bk-price-breakdown" style="font-size:.72rem;color:var(--accent-dk);background:var(--accent-dim);border-radius:var(--rsm);padding:6px 10px;margin-bottom:4px;display:none"></div>
       <div class="fg"><label class="fl">Status</label><select class="fs" id="bk-status"><option value="enquiry">Enquiry</option><option value="confirmed" selected>Confirmed</option><option value="active">Active — In Care</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></div>
       <div class="fg"><label class="fl">Notes</label><textarea class="fta" id="bk-notes" placeholder="Allergies, medication, special instructions…"></textarea></div>
     </div>
@@ -1455,7 +1515,7 @@ const PI = {
 
 // ═══════════════ SETTINGS PAGE ═══════════════
 const PS = {
-  _defaultPrices:{day_care:35,walk:15,overnight:55,grooming:45},
+  _defaultPrices:{day_care:35,walk_30:14,walk_60:18,walk_extra:4,overnight:40,overnight_extra:5,welfare_dog:13,welfare_cat:10,welfare_small:7,grooming:45,walk:14,disc_walks:4,disc_pct:10},
   async getSvcPrices(){return await DB.getSetting('svcPrices',PS._defaultPrices);},
   async load() {
     const p=App.profile;
@@ -1471,16 +1531,38 @@ const PS = {
     if(lbEl) lbEl.textContent = lb ? 'Last backup: '+new Date(lb).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'Never backed up — tap Export to save your data';
     const sp=await PS.getSvcPrices();
     document.getElementById('sp-day_care').value=sp.day_care||35;
-    document.getElementById('sp-walk').value=sp.walk||15;
-    document.getElementById('sp-overnight').value=sp.overnight||55;
+    document.getElementById('sp-walk_30').value=sp.walk_30||14;
+    document.getElementById('sp-walk_60').value=sp.walk_60||18;
+    document.getElementById('sp-walk_extra').value=sp.walk_extra||4;
+    document.getElementById('sp-overnight').value=sp.overnight||40;
+    document.getElementById('sp-overnight_extra').value=sp.overnight_extra||5;
+    document.getElementById('sp-welfare_dog').value=sp.welfare_dog||13;
+    document.getElementById('sp-welfare_cat').value=sp.welfare_cat||10;
+    document.getElementById('sp-welfare_small').value=sp.welfare_small||7;
     document.getElementById('sp-grooming').value=sp.grooming||45;
+    document.getElementById('sp-disc_walks').value=sp.disc_walks||4;
+    document.getElementById('sp-disc_pct').value=sp.disc_pct||10;
   },
   async save() {
     const p={name:document.getElementById('set-name').value.trim(),biz:document.getElementById('set-biz').value.trim(),phone:document.getElementById('set-phone').value.trim(),email:document.getElementById('set-email').value.trim(),capacity:parseInt(document.getElementById('set-cap').value)||6,prefix:document.getElementById('set-pfx').value.trim()||'INV'};
     await DB.setSetting('profile',p); Object.assign(App.profile,p); App._updateProfileUI(); App.toast('✅ Profile saved');
   },
   async savePrices(){
-    const sp={day_care:parseFloat(document.getElementById('sp-day_care').value)||35,walk:parseFloat(document.getElementById('sp-walk').value)||15,overnight:parseFloat(document.getElementById('sp-overnight').value)||55,grooming:parseFloat(document.getElementById('sp-grooming').value)||45};
+    const sp={
+      day_care:parseFloat(document.getElementById('sp-day_care').value)||35,
+      walk_30:parseFloat(document.getElementById('sp-walk_30').value)||14,
+      walk_60:parseFloat(document.getElementById('sp-walk_60').value)||18,
+      walk_extra:parseFloat(document.getElementById('sp-walk_extra').value)||4,
+      overnight:parseFloat(document.getElementById('sp-overnight').value)||40,
+      overnight_extra:parseFloat(document.getElementById('sp-overnight_extra').value)||5,
+      welfare_dog:parseFloat(document.getElementById('sp-welfare_dog').value)||13,
+      welfare_cat:parseFloat(document.getElementById('sp-welfare_cat').value)||10,
+      welfare_small:parseFloat(document.getElementById('sp-welfare_small').value)||7,
+      grooming:parseFloat(document.getElementById('sp-grooming').value)||45,
+      walk:parseFloat(document.getElementById('sp-walk_30').value)||14,
+      disc_walks:parseInt(document.getElementById('sp-disc_walks').value)||4,
+      disc_pct:parseFloat(document.getElementById('sp-disc_pct').value)||10,
+    };
     await DB.setSetting('svcPrices',sp); App.toast('✅ Service prices saved');
   },
   async clear() {
@@ -1497,7 +1579,7 @@ function mClose(id){document.getElementById(id).classList.remove('open');}
 
 // BOOKING FORM — with client picker
 const MB = {
-  _id:null, _svc:'day_care', _clientId:null, _allClients:[], _clientMeds:'',
+  _id:null, _svc:'day_care', _clientId:null, _allClients:[], _clientMeds:'', _manualPrice:false,
 
   // Step 1: open client picker (unless editing or called from a client card)
   async open(editId=null, preClientId=null) {
@@ -1622,8 +1704,11 @@ const MB = {
       document.getElementById('bk-date').value  = U.today();
       document.getElementById('bk-time').value  = '08:00';
       document.getElementById('bk-end').value   = '17:00';
-      const prices=await PS.getSvcPrices();
-      document.getElementById('bk-price').value = prices['day_care']||35;
+      document.getElementById('bk-extra-dogs').value='0';
+      document.getElementById('bk-price-breakdown').style.display='none';
+      MB._manualPrice=false;
+      MB._svc='day_care';
+      await MB.recalcPrice();
       document.getElementById('bk-status').value = 'confirmed';
       if (!MB._clientId) {
         document.getElementById('bk-client-card').style.display = 'none';
@@ -1641,16 +1726,40 @@ const MB = {
 
   async svc(el,key){
     MB._svc=key;
+    MB._manualPrice=false;
     document.querySelectorAll('.svc-opt').forEach(o=>o.classList.remove('on')); el.classList.add('on');
-    const prices=await PS.getSvcPrices(),ends={day_care:'17:00',walk:'11:00',overnight:'09:00',grooming:'13:00'};
-    const pe=document.getElementById('bk-price'); pe.value=prices[key]||'';
-    const ee=document.getElementById('bk-end'); if(!ee.value||ee.value==='17:00')ee.value=ends[key]||'17:00';
+    const ends={day_care:'17:00',walk_30:'08:30',walk_60:'09:00',walk:'11:00',overnight:'09:00',grooming:'13:00',welfare_dog:'10:00',welfare_cat:'10:00',welfare_small:'09:15'};
+    const ee=document.getElementById('bk-end'); if(!ee.value||ee.value==='17:00'||ee.value==='11:00')ee.value=ends[key]||'17:00';
+    await MB.recalcPrice();
+  },
+
+  async recalcPrice(){
+    if(MB._manualPrice) return;
+    const prices=await PS.getSvcPrices();
+    const key=MB._svc;
+    const extraDogs=parseInt(document.getElementById('bk-extra-dogs').value)||0;
+    const basePrice=prices[key]||prices['day_care']||35;
+    let total=basePrice;
+    let breakdown='';
+    if(extraDogs>0 && (key==='walk_30'||key==='walk_60'||key==='walk')){
+      const extraRate=prices.walk_extra||4;
+      total=basePrice+(extraDogs*extraRate);
+      breakdown=`Base: £${basePrice.toFixed(2)} + ${extraDogs} extra dog${extraDogs>1?'s':''} × £${extraRate.toFixed(2)} = £${total.toFixed(2)}`;
+    } else if(extraDogs>0 && key==='overnight'){
+      const extraRate=prices.overnight_extra||5;
+      total=basePrice+(extraDogs*extraRate);
+      breakdown=`Base: £${basePrice.toFixed(2)} + ${extraDogs} extra pet${extraDogs>1?'s':''} × £${extraRate.toFixed(2)} = £${total.toFixed(2)}`;
+    }
+    document.getElementById('bk-price').value=total.toFixed(2);
+    const bd=document.getElementById('bk-price-breakdown');
+    if(bd){bd.textContent=breakdown;bd.style.display=breakdown?'block':'none';}
   },
 
   async save() {
     const dog=document.getElementById('bk-dog').value.trim(),own=document.getElementById('bk-own').value.trim(),date=document.getElementById('bk-date').value;
     if(!dog||!own||!date){App.toast('⚠️ Dog name, owner and date are required');return;}
-    const rec={id:MB._id||'',dogName:dog,ownerName:own,clientId:MB._clientId||'',date,time:document.getElementById('bk-time').value,endTime:document.getElementById('bk-end').value,price:parseFloat(document.getElementById('bk-price').value)||0,notes:document.getElementById('bk-notes').value.trim(),status:document.getElementById('bk-status').value,service:MB._svc,dogEmoji:U.dogEmoji(MB._svc),medication:MB._clientMeds};
+    const extraDogs=parseInt(document.getElementById('bk-extra-dogs').value)||0;
+const rec={id:MB._id||'',dogName:dog,ownerName:own,clientId:MB._clientId||'',date,time:document.getElementById('bk-time').value,endTime:document.getElementById('bk-end').value,price:parseFloat(document.getElementById('bk-price').value)||0,extraDogs,notes:document.getElementById('bk-notes').value.trim(),status:document.getElementById('bk-status').value,service:MB._svc,dogEmoji:U.dogEmoji(MB._svc),medication:MB._clientMeds};
     await DB.put('bookings',rec);
     MB.close(); App.toast(MB._id?'✅ Booking updated':'✅ Booking saved');
     await refresh();
@@ -1688,11 +1797,32 @@ const MD = {
   async complete(id){
     const b=await DB.get('bookings',id);
     b.status='completed';
-    b.invoiceId = b.invoiceId||''; // may be set below
+    b.invoiceId = b.invoiceId||'';
     await DB.put('bookings',b);
-    // Auto-generate invoice if one doesn't already exist for this booking
-    await MD._autoInvoice(b);
     mClose('bkDetail');
+
+    // Check for weekly walk discount
+    if(DISCOUNT.isWalk(b.service)){
+      const [allBks, allInvs, prices] = await Promise.all([DB.getAll('bookings'), DB.getAll('invoices'), PS.getSvcPrices()]);
+      const result = await DISCOUNT.check(b, allBks, allInvs, prices);
+      if(result.qualifies){
+        const choice = await DISCOUNT.prompt(result, b.ownerName);
+        if(choice === 'weekly'){
+          const clients = await DB.getAll('clients');
+          const cl = clients.find(c=>c.id===b.clientId);
+          await DISCOUNT.createWeekly(result, b, cl?.email||'');
+          App.toast('🎉 Weekly invoice with discount created');
+        } else if(choice === 'single'){
+          await MD._autoInvoice(b);
+          App.toast('✅ Booking completed — invoice created');
+        } else {
+          App.toast('✅ Booking completed');
+        }
+        await refresh(); return;
+      }
+    }
+
+    await MD._autoInvoice(b);
     App.toast('✅ Booking completed — invoice created');
     await refresh();
   },
@@ -1799,10 +1929,32 @@ const MCD = {
 
 // INVOICE FORM
 const MI = {
-  open(){
+  async open(preClientId){
     ['inv-cl','inv-dog','inv-amt','inv-notes'].forEach(id=>document.getElementById(id).value='');
     const today=U.today(); document.getElementById('inv-date').value=today;
     const due=new Date(today+'T00:00:00'); due.setDate(due.getDate()+7); document.getElementById('inv-due').value=[due.getFullYear(),String(due.getMonth()+1).padStart(2,'0'),String(due.getDate()).padStart(2,'0')].join('-');
+
+    // If client pre-selected, check for weekly walk discount first
+    if(preClientId){
+      const [allBks, allInvs, prices, clients] = await Promise.all([DB.getAll('bookings'),DB.getAll('invoices'),PS.getSvcPrices(),DB.getAll('clients')]);
+      const cl = clients.find(c=>c.id===preClientId);
+      // Find most recent completed uninvoiced walk for this client
+      const invoicedIds = new Set(allInvs.map(i=>i.bookingId).filter(Boolean));
+      allInvs.forEach(i=>{ if(i.bookingIds) i.bookingIds.forEach(id=>invoicedIds.add(id)); });
+      const recentWalk = allBks.filter(b=>b.clientId===preClientId&&DISCOUNT.isWalk(b.service)&&b.status==='completed'&&!invoicedIds.has(b.id)).sort((a,b)=>b.date.localeCompare(a.date))[0];
+      if(recentWalk){
+        const result = await DISCOUNT.check(recentWalk, allBks, allInvs, prices);
+        if(result.qualifies){
+          const choice = await DISCOUNT.prompt(result, cl?.firstName||recentWalk.ownerName);
+          if(choice==='weekly'){
+            await DISCOUNT.createWeekly(result, recentWalk, cl?.email||'');
+            App.toast('🎉 Weekly invoice with discount created'); await refresh(); return;
+          }
+        }
+      }
+      // Pre-fill client name
+      if(cl) document.getElementById('inv-cl').value=cl.firstName+' '+cl.lastName;
+    }
     mOpen('invModal');
   },
   close(){mClose('invModal');},
@@ -1831,7 +1983,13 @@ const MID = {
         </div>
         <div class="detail-row"><span class="detail-k">Client</span><span class="detail-v">${inv.clientName}</span></div>
         <div class="detail-row"><span class="detail-k">Dog</span><span class="detail-v">${inv.dogEmoji||'🐶'} ${inv.dogName||'—'}</span></div>
-        <div class="detail-row"><span class="detail-k">Service</span><span class="detail-v">${inv.service}</span></div>
+        ${inv.lineItems && inv.lineItems.length > 1
+          ? '<div style="margin-bottom:8px"><div class="detail-k" style="margin-bottom:6px">Bookings</div>' +
+            inv.lineItems.map(l=>`<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:4px 0;border-bottom:1px solid var(--line)"><span style="color:var(--ink2)">${U.fmtShort(l.date)} — ${l.service}</span><span style="font-weight:600">£${l.amount.toFixed(2)}</span></div>`).join('') +
+            (inv.discountAmt ? `<div style="display:flex;justify-content:space-between;font-size:.78rem;padding:4px 0;color:var(--accent-dk);font-weight:700"><span>${inv.discountPct}% weekly discount</span><span>-£${inv.discountAmt.toFixed(2)}</span></div>` : '') +
+            '</div>'
+          : `<div class="detail-row"><span class="detail-k">Service</span><span class="detail-v">${inv.service}</span></div>`
+        }
         <div class="detail-row"><span class="detail-k">Issued</span><span class="detail-v">${U.fmtShort(inv.issueDate)}</span></div>
         <div class="detail-row"><span class="detail-k">${inv.status==='paid'?'Date Paid':'Due Date'}</span><span class="detail-v" style="color:${inv.status==='overdue'?'var(--red)':inv.status==='paid'?'var(--accent-dk)':'inherit'}">${inv.status==='paid'&&inv.paidAt?U.fmtShort(new Date(inv.paidAt).toLocaleDateString('en-CA')):U.fmtShort(inv.dueDate)||'—'}</span></div>
         ${inv.notes?`<div style="margin-top:10px;font-size:.8rem;color:var(--ink3)">${inv.notes}</div>`:''}
@@ -1928,6 +2086,7 @@ const MID = {
           <div class="row-ico">🦮</div>
           <div><div class="row-label">Service</div><div class="row-val">${inv.service}</div></div>
         </div>
+        ${inv.lineItems&&inv.lineItems.length>1?`<div style="margin-top:8px;border-top:1px solid #eee;padding-top:8px">${inv.lineItems.map(l=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;color:#555">${U.fmtShort(l.date)} — ${l.service} <span>£${l.amount.toFixed(2)}</span></div>`).join("")}${inv.discountAmt?`<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;color:#00A87E;font-weight:700">${inv.discountPct}% weekly discount <span>-£${inv.discountAmt.toFixed(2)}</span></div>`:""}</div>`:""}
       </div>
       <div class="info-box">
         <div class="date-row">
@@ -2306,6 +2465,100 @@ const THEME = {
 
     const sysEl = document.getElementById('sysToggle');
     if (sysEl) sysEl.classList.toggle('on', THEME._followSystem);
+  }
+};
+
+
+// ═══════════════ DISCOUNT ENGINE ═══════════════
+const DISCOUNT = {
+  // Get week boundaries (Mon-Sun) for a given date string
+  weekOf(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    const day = d.getDay(); // 0=Sun
+    const diff = day === 0 ? -6 : 1 - day;
+    const mon = new Date(d); mon.setDate(d.getDate() + diff);
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    const fmt = x => [x.getFullYear(), String(x.getMonth()+1).padStart(2,'0'), String(x.getDate()).padStart(2,'0')].join('-');
+    return { mon: fmt(mon), sun: fmt(sun) };
+  },
+
+  isWalk(svc) {
+    return ['walk','walk_30','walk_60'].includes(svc);
+  },
+
+  // Check if completing/invoicing booking b qualifies for weekly discount
+  // Returns {qualifies, walks, uninvoiced, discountPct, discountAmt, subtotal, total, weekMon, weekSun}
+  async check(booking, allBookings, allInvoices, prices) {
+    if (!DISCOUNT.isWalk(booking.service)) return { qualifies: false };
+    const { mon, sun } = DISCOUNT.weekOf(booking.date);
+    const discMinWalks = prices.disc_walks || 4;
+    const discPct = prices.disc_pct || 10;
+
+    // All walk bookings this week for this client (including this one)
+    const weekWalks = allBookings.filter(b =>
+      b.clientId === booking.clientId &&
+      DISCOUNT.isWalk(b.service) &&
+      b.date >= mon && b.date <= sun &&
+      b.status === 'completed'
+    );
+
+    if (weekWalks.length < discMinWalks) return { qualifies: false };
+
+    // Uninvoiced walks this week
+    const invoicedBookingIds = new Set(allInvoices.map(i => i.bookingId).filter(Boolean));
+    // Also check multi-booking invoices
+    allInvoices.forEach(i => { if(i.bookingIds) i.bookingIds.forEach(id => invoicedBookingIds.add(id)); });
+    const uninvoiced = weekWalks.filter(b => !invoicedBookingIds.has(b.id));
+
+    if (uninvoiced.length === 0) return { qualifies: false };
+
+    const subtotal = uninvoiced.reduce((s, b) => s + (parseFloat(b.price) || 0), 0);
+    const discountAmt = parseFloat((subtotal * discPct / 100).toFixed(2));
+    const total = parseFloat((subtotal - discountAmt).toFixed(2));
+
+    return { qualifies: true, walks: weekWalks, uninvoiced, discountPct: discPct, discountAmt, subtotal, total, weekMon: mon, weekSun: sun };
+  },
+
+  // Show the prompt modal and return user choice via Promise
+  prompt(result, clientName) {
+    return new Promise(resolve => {
+      const { uninvoiced, discountPct, discountAmt, subtotal, total, weekMon, weekSun } = result;
+      const lines = uninvoiced.map(b => `${U.fmtShort(b.date)} — ${U.svcLabel(b.service)}: £${parseFloat(b.price).toFixed(2)}`).join('<br>');
+      const el = document.getElementById('discountPromptModal');
+      document.getElementById('dp-title').textContent = `${uninvoiced.length} walks this week for ${clientName}`;
+      document.getElementById('dp-lines').innerHTML = lines;
+      document.getElementById('dp-subtotal').textContent = `£${subtotal.toFixed(2)}`;
+      document.getElementById('dp-disc').textContent = `-£${discountAmt.toFixed(2)} (${discountPct}% off)`;
+      document.getElementById('dp-total').textContent = `£${total.toFixed(2)}`;
+      document.getElementById('dp-weekly-btn').onclick = () => { mClose('discountPromptModal'); resolve('weekly'); };
+      document.getElementById('dp-single-btn').onclick = () => { mClose('discountPromptModal'); resolve('single'); };
+      document.getElementById('dp-cancel-btn').onclick = () => { mClose('discountPromptModal'); resolve('cancel'); };
+      mOpen('discountPromptModal');
+    });
+  },
+
+  // Create a weekly multi-booking invoice
+  async createWeekly(result, booking, clientEmail) {
+    const allInvs = await DB.getAll('invoices');
+    const pfx = App.profile.prefix || 'INV';
+    const num = String(allInvs.length + 1).padStart(3, '0');
+    const { uninvoiced, discountPct, discountAmt, subtotal, total, weekMon, weekSun } = result;
+    const lineItems = uninvoiced.map(b => ({ bookingId: b.id, date: b.date, service: U.svcLabel(b.service), amount: parseFloat(b.price) || 0, dogName: b.dogName, dogEmoji: b.dogEmoji || '🐶' }));
+    const due = new Date(U.today() + 'T00:00:00'); due.setDate(due.getDate() + 7);
+    const dueStr = [due.getFullYear(), String(due.getMonth()+1).padStart(2,'0'), String(due.getDate()).padStart(2,'0')].join('-');
+    const inv = {
+      id: '', invoiceNumber: `${pfx}-${num}`,
+      bookingId: booking.id, bookingIds: uninvoiced.map(b => b.id),
+      clientName: booking.ownerName, clientId: booking.clientId,
+      dogName: uninvoiced.map(b => b.dogName).filter((v,i,a)=>a.indexOf(v)===i).join(', '),
+      dogEmoji: booking.dogEmoji || '🐶',
+      service: `${uninvoiced.length} Walks (${U.fmtShort(weekMon)}–${U.fmtShort(weekSun)})`,
+      lineItems, subtotal, discountPct, discountAmt,
+      amount: total, issueDate: U.today(), dueDate: dueStr,
+      notes: `${discountPct}% weekly walk discount applied`, status: 'pending', clientEmail
+    };
+    await DB.put('invoices', inv);
+    return inv;
   }
 };
 
